@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2026 at 06:45 AM
+-- Generation Time: Apr 03, 2026 at 10:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,15 +29,27 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `applications` (
   `application_id` int(11) NOT NULL,
-  `scholar_id` int(11) DEFAULT NULL,
+  `scholar_id` int(11) NOT NULL,
   `school_year` varchar(20) DEFAULT NULL,
   `semester` enum('1st','2nd') DEFAULT NULL,
   `gwa` decimal(4,2) DEFAULT NULL,
   `monthly_income` decimal(10,2) DEFAULT NULL,
   `status` enum('pending','for_review','approved','rejected','incomplete') DEFAULT 'pending',
   `remarks` text DEFAULT NULL,
-  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `father_name` varchar(100) DEFAULT NULL,
+  `father_occupation` varchar(100) DEFAULT NULL,
+  `mother_name` varchar(100) DEFAULT NULL,
+  `mother_occupation` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `applications`
+--
+
+INSERT INTO `applications` (`application_id`, `scholar_id`, `school_year`, `semester`, `gwa`, `monthly_income`, `status`, `remarks`, `submitted_at`, `father_name`, `father_occupation`, `mother_name`, `mother_occupation`) VALUES
+(1, 1, '2025-2026', '2nd', 1.20, 15000.00, 'pending', NULL, '2026-04-02 05:20:15', NULL, NULL, NULL, NULL),
+(4, 2, '2026-2027', '2nd', NULL, NULL, 'pending', NULL, '2026-04-03 08:13:46', 'IAN VILLAR', 'DRIVER', 'IRY CALOOYONG MAANO', 'TGP');
 
 -- --------------------------------------------------------
 
@@ -72,6 +84,24 @@ CREATE TABLE `documents` (
   `verified_by` int(11) DEFAULT NULL,
   `verified_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `documents`
+--
+
+INSERT INTO `documents` (`document_id`, `application_id`, `document_type`, `file_path`, `verified`, `verified_by`, `verified_at`) VALUES
+(1, 1, 'barangay', 'Brgy. San Juan', 0, NULL, NULL),
+(2, 1, 'birthdate', '2002-09-28', 0, NULL, NULL),
+(3, 1, 'grade_slip', 'grade_slip_1_1775107215.jpg', 0, NULL, NULL),
+(4, 1, 'enrollment_receipt', 'enrollment_receipt_1_1775107215.jpg', 0, NULL, NULL),
+(5, 4, 'barangay', 'Brgy. San Juan', 0, NULL, NULL),
+(6, 4, 'birthdate', '2006-09-12', 0, NULL, NULL),
+(7, 4, 'school', 'ICCT COLLEGE CAINTA', 0, NULL, NULL),
+(8, 4, 'course', 'BSIT', 0, NULL, NULL),
+(9, 4, 'year_level', '1', 0, NULL, NULL),
+(10, 4, 'grade_slip', 'grade_slip_2_1775204026.jpg', 0, NULL, NULL),
+(11, 4, 'enrollment_receipt', 'enrollment_receipt_2_1775204026.jpg', 0, NULL, NULL),
+(12, 4, 'enrollment_form', 'enrollment_form_2_1775204026.jpg', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -163,7 +193,8 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `email`, `password`, `contact_no`, `address`, `barangay`, `birthdate`, `gender`, `is_active`, `created_at`) VALUES
-(1, 'Juan', 'Santos', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$OOqW0H6YjinxMcoDspHDje4UP30E8clBZUHouUmRek3sPLwYnEl1C', '09123456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2001-11-11', 'Male', 1, '2026-04-01 06:36:35');
+(1, 'Juan', 'Santos', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$OOqW0H6YjinxMcoDspHDje4UP30E8clBZUHouUmRek3sPLwYnEl1C', '09123456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2001-11-11', 'Male', 1, '2026-04-01 06:36:35'),
+(2, 'John Ryan', 'Villar', 'Maano', 'johnryanvillar7@gmail.com', '$2y$10$7sl4ID/RAJDl95eIrTHmW.6nvLS7LIlng3WlKUdoL.wD7G4RVJSZK', '091233456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-12', 'Male', 1, '2026-04-02 13:26:18');
 
 -- --------------------------------------------------------
 
@@ -257,7 +288,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `applications`
 --
 ALTER TABLE `applications`
-  MODIFY `application_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `application_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `disbursements`
@@ -269,7 +300,7 @@ ALTER TABLE `disbursements`
 -- AUTO_INCREMENT for table `documents`
 --
 ALTER TABLE `documents`
-  MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `inventory_items`
@@ -293,7 +324,7 @@ ALTER TABLE `scholars`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -304,12 +335,6 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `applications`
---
-ALTER TABLE `applications`
-  ADD CONSTRAINT `applications_ibfk_1` FOREIGN KEY (`scholar_id`) REFERENCES `scholars` (`scholar_id`);
 
 --
 -- Constraints for table `disbursements`
