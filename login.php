@@ -116,7 +116,7 @@ if(isset($_SESSION['user_id'])) {
                         <i class="bi bi-person text-secondary"></i>
                     </span>
                     <input type="text" name="username" class="form-control border-start-0"
-                           placeholder="Enter your username" required autofocus>
+                            placeholder="Enter your username" required autofocus>
                 </div>
             </div>
             <div class="mb-4">
@@ -126,7 +126,7 @@ if(isset($_SESSION['user_id'])) {
                         <i class="bi bi-lock text-secondary"></i>
                     </span>
                     <input type="password" name="password" class="form-control border-start-0"
-                           placeholder="Enter your password" required>
+                            placeholder="Enter your password" required>
                 </div>
             </div>
             <button type="submit" class="btn-login">

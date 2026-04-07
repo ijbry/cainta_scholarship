@@ -123,22 +123,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="col-md-4">
                     <label class="form-label">Last Name <span class="text-danger">*</span></label>
                     <input type="text" name="last_name" class="form-control" required
-                           value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+                            value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">First Name <span class="text-danger">*</span></label>
                     <input type="text" name="first_name" class="form-control" required
-                           value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
+                            value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Middle Name</label>
                     <input type="text" name="middle_name" class="form-control"
-                           value="<?= htmlspecialchars($_POST['middle_name'] ?? '') ?>">
+                            value="<?= htmlspecialchars($_POST['middle_name'] ?? '') ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Birthdate <span class="text-danger">*</span></label>
                     <input type="date" name="birthdate" class="form-control" required
-                           value="<?= $_POST['birthdate'] ?? '' ?>">
+                            value="<?= $_POST['birthdate'] ?? '' ?>">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Gender <span class="text-danger">*</span></label>
@@ -151,7 +151,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="col-md-4">
                     <label class="form-label">Contact Number</label>
                     <input type="text" name="contact_no" class="form-control" placeholder="09XXXXXXXXX"
-                           value="<?= htmlspecialchars($_POST['contact_no'] ?? '') ?>">
+                            value="<?= htmlspecialchars($_POST['contact_no'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Barangay <span class="text-danger">*</span></label>
@@ -167,7 +167,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="col-md-6">
                     <label class="form-label">Home Address <span class="text-danger">*</span></label>
                     <input type="text" name="address" class="form-control" required
-                           value="<?= htmlspecialchars($_POST['address'] ?? '') ?>">
+                            value="<?= htmlspecialchars($_POST['address'] ?? '') ?>">
                 </div>
             </div>
 
@@ -177,18 +177,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="col-md-12">
                     <label class="form-label">Email Address <span class="text-danger">*</span></label>
                     <input type="email" name="email" class="form-control" required
-                           placeholder="This will be your username"
-                           value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                            placeholder="This will be your username"
+                            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Password <span class="text-danger">*</span></label>
                     <input type="password" name="password" class="form-control" required
-                           placeholder="Minimum 6 characters">
+                            placeholder="Minimum 6 characters">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
                     <input type="password" name="confirm_password" class="form-control" required
-                           placeholder="Re-enter your password">
+                            placeholder="Re-enter your password">
                 </div>
             </div>
 

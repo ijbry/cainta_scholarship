@@ -106,8 +106,8 @@ $scholars = $stmt->fetchAll();
             <form method="GET" class="mb-3">
                 <div class="input-group" style="max-width: 400px;">
                     <input type="text" name="search" class="form-control" 
-                           placeholder="Search by name or barangay..." 
-                           value="<?= htmlspecialchars($search) ?>">
+                            placeholder="Search by name or barangay..." 
+                            value="<?= htmlspecialchars($search) ?>">
                     <button class="btn btn-outline-secondary" type="submit">
                         <i class="bi bi-search"></i>
                     </button>
@@ -162,12 +162,12 @@ $scholars = $stmt->fetchAll();
                             </td>
                             <td>
                                 <a href="edit_scholar.php?id=<?= $s['scholar_id'] ?>" 
-                                   class="btn btn-sm btn-outline-primary">
+                                    class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="scholars.php?delete=<?= $s['scholar_id'] ?>" 
-                                   class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Are you sure you want to delete this scholar?')">
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to delete this scholar?')">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>

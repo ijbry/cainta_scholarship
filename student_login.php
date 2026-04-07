@@ -85,7 +85,7 @@ if(isset($_SESSION['student_id'])) {
                         <i class="bi bi-envelope text-secondary"></i>
                     </span>
                     <input type="email" name="email" class="form-control border-start-0"
-                           placeholder="Enter your email" required autofocus>
+                            placeholder="Enter your email" required autofocus>
                 </div>
             </div>
             <div class="mb-4">
@@ -95,7 +95,7 @@ if(isset($_SESSION['student_id'])) {
                         <i class="bi bi-lock text-secondary"></i>
                     </span>
                     <input type="password" name="password" class="form-control border-start-0"
-                           placeholder="Enter your password" required>
+                            placeholder="Enter your password" required>
                 </div>
             </div>
             <button type="submit" class="btn-login mb-3">

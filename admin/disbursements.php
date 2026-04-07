@@ -31,7 +31,7 @@ if(isset($_GET['release'])) {
 // Get all disbursements
 $disbursements = $pdo->query("
     SELECT d.*, s.first_name, s.last_name, s.barangay,
-           u.full_name as released_by_name
+            u.full_name as released_by_name
     FROM disbursements d
     LEFT JOIN students s ON d.scholar_id = s.student_id
     LEFT JOIN users u ON d.released_by = u.user_id
