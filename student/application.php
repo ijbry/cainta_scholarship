@@ -224,22 +224,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
                     <div class="col-md-6">
                         <label class="form-label">Father's Full Name <span class="text-danger">*</span></label>
                         <input type="text" name="father_name" class="form-control" required
-                               placeholder="e.g. Juan Dela Cruz">
+                                placeholder="e.g. Juan Dela Cruz">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Father's Occupation <span class="text-danger">*</span></label>
                         <input type="text" name="father_occupation" class="form-control" required
-                               placeholder="e.g. Driver, Carpenter">
+                                placeholder="e.g. Driver, Carpenter">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Mother's Full Name <span class="text-danger">*</span></label>
                         <input type="text" name="mother_name" class="form-control" required
-                               placeholder="e.g. Maria Dela Cruz">
+                                placeholder="e.g. Maria Dela Cruz">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Mother's Occupation <span class="text-danger">*</span></label>
                         <input type="text" name="mother_occupation" class="form-control" required
-                               placeholder="e.g. Housewife, Teacher">
+                                placeholder="e.g. Housewife, Teacher">
                     </div>
                 </div>
 
@@ -249,12 +249,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
                     <div class="col-md-6">
                         <label class="form-label">School / University <span class="text-danger">*</span></label>
                         <input type="text" name="school" class="form-control" required
-                               placeholder="e.g. PLM, PUP, STI College">
+                                placeholder="e.g. PLM, PUP, STI College">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Course <span class="text-danger">*</span></label>
                         <input type="text" name="course" class="form-control" required
-                               placeholder="e.g. BSIT, BSCS, BSN">
+                                placeholder="e.g. BSIT, BSCS, BSN">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Year Level <span class="text-danger">*</span></label>
