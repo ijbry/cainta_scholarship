@@ -7,13 +7,32 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 
-// Handle status update
 if(isset($_POST['update_status'])) {
     $app_id = $_POST['application_id'];
     $status = $_POST['status'];
     $remarks = $_POST['remarks'];
+    
     $stmt = $pdo->prepare("UPDATE applications SET status=?, remarks=? WHERE application_id=?");
     $stmt->execute([$status, $remarks, $app_id]);
+
+    // Send email notification if approved, rejected or incomplete
+    if(in_array($status, ['approved', 'rejected', 'incomplete'])) {
+        $student = $pdo->prepare("
+            SELECT s.email, s.first_name, s.last_name 
+            FROM applications a 
+            JOIN students s ON a.scholar_id = s.student_id 
+            WHERE a.application_id = ?
+        ");
+        $student->execute([$app_id]);
+        $std = $student->fetch();
+        
+        if($std) {
+            require_once '../includes/mailer.php';
+            $name = $std['first_name'] . ' ' . $std['last_name'];
+            sendStatusEmail($std['email'], $name, $status, $remarks);
+        }
+    }
+
     header("Location: applications.php?success=1");
     exit();
 }
