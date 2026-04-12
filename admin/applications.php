@@ -11,32 +11,74 @@ if(isset($_POST['update_status'])) {
     $app_id = $_POST['application_id'];
     $status = $_POST['status'];
     $remarks = $_POST['remarks'];
-    
+
     $stmt = $pdo->prepare("UPDATE applications SET status=?, remarks=? WHERE application_id=?");
     $stmt->execute([$status, $remarks, $app_id]);
 
+    // If approved — auto add to scholars table
+    if($status == 'approved') {
+        // Get student info from application
+        $student = $pdo->prepare("
+            SELECT s.*, 
+                    (SELECT file_path FROM documents WHERE application_id = ? AND document_type = 'school') as school,
+                    (SELECT file_path FROM documents WHERE application_id = ? AND document_type = 'course') as course,
+                    (SELECT file_path FROM documents WHERE application_id = ? AND document_type = 'year_level') as year_level
+            FROM applications a 
+            JOIN students s ON a.scholar_id = s.student_id 
+            WHERE a.application_id = ?
+        ");
+        $student->execute([$app_id, $app_id, $app_id, $app_id]);
+        $std = $student->fetch();
+
+        if($std) {
+            // Check if already in scholars table
+            $existing = $pdo->prepare("SELECT scholar_id FROM scholars WHERE email = ?");
+            $existing->execute([$std['email']]);
+            
+            if(!$existing->fetch()) {
+                // Add to scholars table
+                $add = $pdo->prepare("INSERT INTO scholars 
+                    (first_name, last_name, middle_name, birthdate, gender, address, barangay, contact_no, email, school, course, year_level, status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
+                $add->execute([
+                    $std['first_name'],
+                    $std['last_name'],
+                    $std['middle_name'] ?? '',
+                    $std['birthdate'] ?? null,
+                    $std['gender'] ?? '',
+                    $std['address'] ?? '',
+                    $std['barangay'] ?? '',
+                    $std['contact_no'] ?? '',
+                    $std['email'],
+                    $std['school'] ?? '',
+                    $std['course'] ?? '',
+                    $std['year_level'] ?? 1,
+                ]);
+            }
+        }
+    }
+
     // Send email notification if approved, rejected or incomplete
     if(in_array($status, ['approved', 'rejected', 'incomplete'])) {
-        $student = $pdo->prepare("
+        $student2 = $pdo->prepare("
             SELECT s.email, s.first_name, s.last_name 
             FROM applications a 
             JOIN students s ON a.scholar_id = s.student_id 
             WHERE a.application_id = ?
         ");
-        $student->execute([$app_id]);
-        $std = $student->fetch();
-        
-        if($std) {
+        $student2->execute([$app_id]);
+        $std2 = $student2->fetch();
+
+        if($std2) {
             require_once '../includes/mailer.php';
-            $name = $std['first_name'] . ' ' . $std['last_name'];
-            sendStatusEmail($std['email'], $name, $status, $remarks);
+            $name = $std2['first_name'] . ' ' . $std2['last_name'];
+            sendStatusEmail($std2['email'], $name, $status, $remarks);
         }
     }
 
     header("Location: applications.php?success=1");
     exit();
 }
-
 // Filter
 $filter = $_GET['filter'] ?? 'all';
 if($filter != 'all') {
@@ -260,6 +302,7 @@ $counts = $pdo->query("SELECT status, COUNT(*) as cnt FROM applications GROUP BY
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
 function viewApplication(app) {
     document.getElementById('modal_app_id').value = app.application_id;
     document.getElementById('modal_status').value = app.status;
@@ -277,17 +320,75 @@ function viewApplication(app) {
         <div class="col-md-4"><div class="text-muted" style="font-size:12px;">Status</div>
         <div><span class="badge badge-${app.status}">${app.status.replace('_', ' ')}</span></div></div>
         <div class="col-md-6"><div class="text-muted" style="font-size:12px;">Father's Name</div>
-        <div>${app.father_name || 'N/A'}</div></div>
-        <div class="col-md-6"><div class="text-muted" style="font-size:12px;">Father's Occupation</div>
-        <div>${app.father_occupation || 'N/A'}</div></div>
+        <div>${app.father_name || 'N/A'} — ${app.father_occupation || 'N/A'}</div></div>
         <div class="col-md-6"><div class="text-muted" style="font-size:12px;">Mother's Name</div>
-        <div>${app.mother_name || 'N/A'}</div></div>
-        <div class="col-md-6"><div class="text-muted" style="font-size:12px;">Mother's Occupation</div>
-        <div>${app.mother_occupation || 'N/A'}</div></div>
-        <div class="col-md-6"><div class="text-muted" style="font-size:12px;">Submitted</div>
-        <div>${app.submitted_at}</div></div>
+        <div>${app.mother_name || 'N/A'} — ${app.mother_occupation || 'N/A'}</div></div>
+        <div class="col-md-12">
+            <div class="text-muted" style="font-size:12px;">Submitted</div>
+            <div>${app.submitted_at}</div>
+        </div>
     `;
     document.getElementById('appDetails').innerHTML = details;
+
+    // Load documents via AJAX
+    fetch('get_documents.php?app_id=' + app.application_id)
+        .then(res => res.json())
+        .then(docs => {
+            let docsHtml = '<hr><h6 class="fw-bold mb-3"><i class="bi bi-paperclip me-1"></i> Submitted Documents</h6>';
+            if(docs.length === 0) {
+                docsHtml += '<p class="text-muted">No documents uploaded.</p>';
+            } else {
+                docsHtml += '<div class="row g-2">';
+                docs.forEach(doc => {
+                    let label = doc.document_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    let ext = doc.file_path.split('.').pop().toLowerCase();
+                    let isImage = ['jpg','jpeg','png'].includes(ext);
+                    let isPdf = ext === 'pdf';
+                    let fileUrl = '../uploads/' + doc.file_path;
+
+                    if(['barangay','birthdate','school','course','year_level'].includes(doc.document_type)) {
+                        docsHtml += `
+                        <div class="col-md-6">
+                            <div class="border rounded p-2">
+                                <div class="text-muted" style="font-size:11px;">${label}</div>
+                                <div class="fw-500">${doc.file_path}</div>
+                            </div>
+                        </div>`;
+                    } else if(isImage) {
+                        docsHtml += `
+                        <div class="col-md-6">
+                            <div class="border rounded p-2 text-center">
+                                <div class="text-muted mb-1" style="font-size:11px;">${label}</div>
+                                <a href="${fileUrl}" target="_blank">
+                                    <img src="${fileUrl}" style="max-width:100%; max-height:150px; border-radius:4px;"
+                                            onerror="this.src=''; this.alt='Cannot load image';">
+                                </a>
+                                <div class="mt-1">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>View Full
+                                    </a>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else if(isPdf) {
+                        docsHtml += `
+                        <div class="col-md-6">
+                            <div class="border rounded p-2 text-center">
+                                <div class="text-muted mb-1" style="font-size:11px;">${label}</div>
+                                <i class="bi bi-file-pdf text-danger" style="font-size:40px;"></i>
+                                <div class="mt-1">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-eye me-1"></i>View PDF
+                                    </a>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                });
+                docsHtml += '</div>';
+            }
+            document.getElementById('appDocuments').innerHTML = docsHtml;
+        });
 
     let modal = new bootstrap.Modal(document.getElementById('reviewModal'));
     modal.show();
