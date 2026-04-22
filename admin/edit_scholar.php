@@ -7,36 +7,46 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 
+$id = $_GET['id'] ?? null;
+if(!$id) { header("Location: scholars.php"); exit(); }
+
+$scholar = $pdo->prepare("SELECT * FROM scholars WHERE scholar_id = ?");
+$scholar->execute([$id]);
+$s = $scholar->fetch();
+if(!$s) { header("Location: scholars.php"); exit(); }
+
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $stmt = $pdo->prepare("INSERT INTO scholars 
-        (first_name, last_name, middle_name, birthdate, gender, address, barangay, contact_no, email, school, course, year_level, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
-    
+    $stmt = $pdo->prepare("UPDATE scholars SET 
+        first_name=?, last_name=?, middle_name=?, birthdate=?, gender=?, 
+        address=?, barangay=?, contact_no=?, email=?, school=?, course=?, year_level=?, status=?
+        WHERE scholar_id=?");
     $stmt->execute([
-        $_POST['first_name'],
-        $_POST['last_name'],
-        $_POST['middle_name'],
-        $_POST['birthdate'],
-        $_POST['gender'],
-        $_POST['address'],
-        $_POST['barangay'],
-        $_POST['contact_no'],
-        $_POST['email'],
-        $_POST['school'],
-        $_POST['course'],
-        $_POST['year_level'],
+        $_POST['first_name'], $_POST['last_name'], $_POST['middle_name'],
+        $_POST['birthdate'], $_POST['gender'], $_POST['address'],
+        $_POST['barangay'], $_POST['contact_no'], $_POST['email'],
+        $_POST['school'], $_POST['course'], $_POST['year_level'],
+        $_POST['status'], $id
     ]);
-    
-    header("Location: scholars.php?success=added");
+    header("Location: scholars.php?success=updated");
     exit();
 }
+
+$barangays = [
+    'Brgy. San Andres',
+    'Brgy. San Isidro',
+    'Brgy. San Juan',
+    'Brgy. San Roque',
+    'Brgy. Santa Rosa',
+    'Brgy. Santo Domingo',
+    'Brgy. Santo Niño'
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Scholar | Cainta Scholarship</title>
+    <title>Edit Scholar | Cainta Scholarship</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -92,8 +102,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="main-content">
     <div class="topbar">
         <div>
-            <h5 class="mb-0 fw-bold">Add New Scholar</h5>
-            <small class="text-muted">Fill in the scholar's information</small>
+            <h5 class="mb-0 fw-bold">Edit Scholar</h5>
+            <small class="text-muted">Update scholar information</small>
         </div>
         <a href="scholars.php" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Back to Scholars
@@ -103,58 +113,66 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="card">
         <div class="card-body p-4">
             <form method="POST">
+
                 <!-- Personal Information -->
                 <p class="section-title"><i class="bi bi-person me-1"></i> Personal Information</p>
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                        <input type="text" name="last_name" class="form-control" required>
+                        <input type="text" name="last_name" class="form-control"
+                                value="<?= htmlspecialchars($s['last_name']) ?>" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">First Name <span class="text-danger">*</span></label>
-                        <input type="text" name="first_name" class="form-control" required>
+                        <input type="text" name="first_name" class="form-control"
+                                value="<?= htmlspecialchars($s['first_name']) ?>" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Middle Name</label>
-                        <input type="text" name="middle_name" class="form-control">
+                        <input type="text" name="middle_name" class="form-control"
+                                value="<?= htmlspecialchars($s['middle_name']) ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                        <input type="date" name="birthdate" class="form-control" required>
+                        <label class="form-label">Birthdate</label>
+                        <input type="date" name="birthdate" class="form-control"
+                                value="<?= $s['birthdate'] ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Gender <span class="text-danger">*</span></label>
-                        <select name="gender" class="form-select" required>
-                            <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
+                        <label class="form-label">Gender</label>
+                        <select name="gender" class="form-select">
+                            <option value="Male" <?= $s['gender']=='Male'?'selected':'' ?>>Male</option>
+                            <option value="Female" <?= $s['gender']=='Female'?'selected':'' ?>>Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="active" <?= $s['status']=='active'?'selected':'' ?>>Active</option>
+                            <option value="inactive" <?= $s['status']=='inactive'?'selected':'' ?>>Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Contact Number</label>
-                        <input type="text" name="contact_no" class="form-control" placeholder="09XXXXXXXXX">
+                        <input type="text" name="contact_no" class="form-control"
+                                value="<?= htmlspecialchars($s['contact_no']) ?>">
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" name="email" class="form-control">
+                    <div class="col-md-4">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control"
+                                value="<?= htmlspecialchars($s['email']) ?>">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">Barangay <span class="text-danger">*</span></label>
                         <select name="barangay" class="form-select" required>
-                                <option value="">Select barangay</option>
-                                <option>Brgy. San Andres</option>
-                                <option>Brgy. San Isidro</option>
-                                <option>Brgy. San Juan</option>
-                                <option>Brgy. San Roque</option>
-                                <option>Brgy. Santa Rosa</option>
-                                <option>Brgy. Santo Domingo</option>
-                                <option>Brgy. Santo Niño</option>
-                    </select>
+                            <option value="">Select barangay</option>
+                            <?php foreach($barangays as $b): ?>
+                            <option value="<?= $b ?>" <?= $s['barangay']==$b?'selected':'' ?>><?= $b ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                    
                     <div class="col-md-12">
-                        <label class="form-label">Home Address <span class="text-danger">*</span></label>
-                        <textarea name="address" class="form-control" rows="2" required></textarea>
+                        <label class="form-label">Home Address</label>
+                        <textarea name="address" class="form-control" rows="2"><?= htmlspecialchars($s['address']) ?></textarea>
                     </div>
                 </div>
 
@@ -162,22 +180,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p class="section-title"><i class="bi bi-book me-1"></i> School Information</p>
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
-                        <label class="form-label">School/University <span class="text-danger">*</span></label>
-                        <input type="text" name="school" class="form-control" required placeholder="e.g. PLM, PUP, DLSU">
+                        <label class="form-label">School/University</label>
+                        <input type="text" name="school" class="form-control"
+                                value="<?= htmlspecialchars($s['school']) ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Course <span class="text-danger">*</span></label>
-                        <input type="text" name="course" class="form-control" required placeholder="e.g. BSIT, BSCS">
+                        <label class="form-label">Course</label>
+                        <input type="text" name="course" class="form-control"
+                                value="<?= htmlspecialchars($s['course']) ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Year Level <span class="text-danger">*</span></label>
-                        <select name="year_level" class="form-select" required>
-                            <option value="">Select year</option>
-                            <option value="1">1st Year</option>
-                            <option value="2">2nd Year</option>
-                            <option value="3">3rd Year</option>
-                            <option value="4">4th Year</option>
-                            <option value="5">5th Year</option>
+                        <label class="form-label">Year Level</label>
+                        <select name="year_level" class="form-select">
+                            <?php for($y=1; $y<=5; $y++): ?>
+                            <option value="<?= $y ?>" <?= $s['year_level']==$y?'selected':'' ?>><?= $y ?>th Year</option>
+                            <?php endfor; ?>
                         </select>
                     </div>
                 </div>
@@ -185,13 +202,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="d-flex gap-2 justify-content-end">
                     <a href="scholars.php" class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save me-1"></i> Save Scholar
+                        <i class="bi bi-save me-1"></i> Update Scholar
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<?php include '../chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
