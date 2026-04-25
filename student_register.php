@@ -30,7 +30,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif(strlen($password) < 6) {
         $error = 'Password must be at least 6 characters.';
     } else {
-        // Check if email already exists
         $check = $pdo->prepare("SELECT student_id FROM students WHERE email = ?");
         $check->execute([$email]);
         if($check->fetch()) {
@@ -95,6 +94,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-weight: 500; width: 100%; transition: background 0.2s;
         }
         .btn-register:hover { background: #14305a; color: white; }
+        .eye-btn {
+            border: 1px solid #dde1e7; border-left: none;
+            background: white; border-radius: 0 8px 8px 0;
+            padding: 9px 12px; cursor: pointer; color: #666;
+        }
+        .eye-btn:hover { color: #1A3A6B; }
     </style>
 </head>
 <body>
@@ -150,7 +155,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Contact Number</label>
-                    <input type="text" name="contact_no" class="form-control" placeholder="09XXXXXXXXX"
+                    <input type="tel" name="contact_no" class="form-control"
+                            placeholder="09XXXXXXXXX" inputmode="numeric"
+                            pattern="[0-9]*" maxlength="11"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             value="<?= htmlspecialchars($_POST['contact_no'] ?? '') ?>">
                 </div>
                 <div class="col-md-6">
@@ -158,7 +166,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <select name="barangay" class="form-select" required>
                         <option value="">Select barangay</option>
                         <?php
-                        $barangays = ['Brgy. Sto. Nino','Brgy. San Andres','Brgy. San Isidro','Brgy. San Juan','Brgy. San Roque','Brgy. Kalinaw','Brgy. Dayap','Brgy. Dela Paz'];
+                        $barangays = [
+                            'Brgy. San Andres',
+                            'Brgy. San Isidro',
+                            'Brgy. San Juan',
+                            'Brgy. San Roque',
+                            'Brgy. Santa Rosa',
+                            'Brgy. Santo Domingo',
+                            'Brgy. Santo Niño'
+                        ];
                         foreach($barangays as $b): ?>
                         <option value="<?= $b ?>" <?= ($_POST['barangay'] ?? '')===$b?'selected':'' ?>><?= $b ?></option>
                         <?php endforeach; ?>
@@ -182,13 +198,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Password <span class="text-danger">*</span></label>
-                    <input type="password" name="password" class="form-control" required
-                            placeholder="Minimum 6 characters">
+                    <div class="input-group">
+                        <input type="password" name="password" id="reg-password"
+                                class="form-control border-end-0" required
+                                placeholder="Minimum 6 characters">
+                        <button type="button" class="eye-btn"
+                                onclick="togglePassword('reg-password', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                    <input type="password" name="confirm_password" class="form-control" required
-                            placeholder="Re-enter your password">
+                    <div class="input-group">
+                        <input type="password" name="confirm_password" id="reg-confirm"
+                                class="form-control border-end-0" required
+                                placeholder="Re-enter your password">
+                        <button type="button" class="eye-btn"
+                                onclick="togglePassword('reg-confirm', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -202,6 +232,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
     </div>
 </div>
+
+<?php include 'chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if(input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
 </body>
 </html>

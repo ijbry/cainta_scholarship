@@ -102,7 +102,6 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
         <a href="scholars.php" class="nav-link"><i class="bi bi-people"></i> Scholars</a>
         <a href="applications.php" class="nav-link"><i class="bi bi-file-earmark-text"></i> Applications</a>
         <a href="disbursements.php" class="nav-link active"><i class="bi bi-cash-stack"></i> Disbursements</a>
-        <a href="inventory.php" class="nav-link"><i class="bi bi-box-seam"></i> Inventory</a>
         <a href="reports.php" class="nav-link"><i class="bi bi-bar-chart"></i> Reports</a>
         <a href="users.php" class="nav-link"><i class="bi bi-person-gear"></i> Users</a>
         <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 20px;">
@@ -197,8 +196,8 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
                             <td>
                                 <?php if($d['status'] == 'pending'): ?>
                                 <a href="disbursements.php?release=<?= $d['disbursement_id'] ?>"
-                                   class="btn btn-sm btn-success"
-                                   onclick="return confirm('Release allowance for <?= htmlspecialchars($d['first_name']) ?>?')">
+                                    class="btn btn-sm btn-success"
+                                    onclick="return confirm('Release allowance for <?= htmlspecialchars($d['first_name']) ?>?')">
                                     <i class="bi bi-check-circle me-1"></i> Release
                                 </a>
                                 <?php else: ?>
@@ -253,10 +252,35 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Amount <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text">₱</span>
-                            <input type="number" name="amount" class="form-control"
-                                    placeholder="e.g. 3000" required>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="amount"
+                                        id="amount1" value="2500" checked required>
+                                <label class="form-check-label" for="amount1">
+                                    ₱2,500.00 — Standard Allowance
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="amount"
+                                        id="amount2" value="5000" required>
+                                <label class="form-check-label" for="amount2">
+                                    ₱5,000.00 — Special Allowance
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="amount"
+                                        id="amount3" value="custom" required>
+                                <label class="form-check-label" for="amount3">
+                                    Custom Amount
+                                </label>
+                            </div>
+                            <div id="custom-amount-div" style="display:none;">
+                                <div class="input-group mt-1">
+                                    <span class="input-group-text">₱</span>
+                                    <input type="number" id="custom-amount-input"
+                                            class="form-control" placeholder="Enter custom amount">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
@@ -272,5 +296,22 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('input[name="amount"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const customDiv = document.getElementById('custom-amount-div');
+        const customInput = document.getElementById('custom-amount-input');
+        if(this.value === 'custom') {
+            customDiv.style.display = 'block';
+            customInput.name = 'amount';
+            this.name = 'amount_radio';
+        } else {
+            customDiv.style.display = 'none';
+            customInput.name = '';
+            this.name = 'amount';
+        }
+    });
+});
+</script>
 </body>
 </html>

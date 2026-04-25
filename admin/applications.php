@@ -156,7 +156,6 @@ $counts = $pdo->query("SELECT status, COUNT(*) as cnt FROM applications GROUP BY
         <a href="scholars.php" class="nav-link"><i class="bi bi-people"></i> Scholars</a>
         <a href="applications.php" class="nav-link active"><i class="bi bi-file-earmark-text"></i> Applications</a>
         <a href="disbursements.php" class="nav-link"><i class="bi bi-cash-stack"></i> Disbursements</a>
-        <a href="inventory.php" class="nav-link"><i class="bi bi-box-seam"></i> Inventory</a>
         <a href="reports.php" class="nav-link"><i class="bi bi-bar-chart"></i> Reports</a>
         <a href="users.php" class="nav-link"><i class="bi bi-person-gear"></i> Users</a>
         <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 20px;">

@@ -206,14 +206,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
                     <div class="col-md-6">
                         <label class="form-label">Barangay <span class="text-danger">*</span></label>
                         <select name="barangay" class="form-select" required>
-                            <option value="">Select your barangay</option>
-                            <option>Brgy. San Andres</option>
-                            <option>Brgy. San Isidro</option>
-                            <option>Brgy. San Juan</option>
-                            <option>Brgy. San Roque</option>
-                            <option>Brgy. Santa Rosa</option>
-                            <option>Brgy. Santo Domingo</option>
-                            <option>Brgy. Santo Niño</option>
+                                    <option value="">Select your barangay</option>
+                                    <option>Brgy. San Andres</option>
+                                    <option>Brgy. San Isidro</option>
+                                    <option>Brgy. San Juan</option>
+                                    <option>Brgy. San Roque</option>
+                                    <option>Brgy. Santa Rosa</option>
+                                    <option>Brgy. Santo Domingo</option>
+                                    <option>Brgy. Santo Niño</option>
                         </select>
                     </div>
                 </div>

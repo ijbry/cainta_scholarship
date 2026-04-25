@@ -46,6 +46,12 @@ if(isset($_SESSION['student_id'])) {
             font-weight: 500; width: 100%; transition: background 0.2s;
         }
         .btn-login:hover { background: #14305a; color: white; }
+        .eye-btn {
+            border: 1px solid #dde1e7; border-left: none;
+            background: white; border-radius: 0 8px 8px 0;
+            padding: 10px 14px; cursor: pointer; color: #666;
+        }
+        .eye-btn:hover { color: #1A3A6B; }
     </style>
 </head>
 <body>
@@ -70,13 +76,6 @@ if(isset($_SESSION['student_id'])) {
         </div>
         <?php endif; ?>
 
-        <?php if(isset($_GET['registered'])): ?>
-        <div class="alert alert-success">
-            <i class="bi bi-check-circle me-1"></i>
-            Account created! You can now login.
-        </div>
-        <?php endif; ?>
-
         <form action="student_login_process.php" method="POST">
             <div class="mb-3">
                 <label class="form-label">Email Address</label>
@@ -94,8 +93,12 @@ if(isset($_SESSION['student_id'])) {
                     <span class="input-group-text bg-light border-end-0">
                         <i class="bi bi-lock text-secondary"></i>
                     </span>
-                    <input type="password" name="password" class="form-control border-start-0"
+                    <input type="password" name="password" id="student-password"
+                            class="form-control border-start-0 border-end-0"
                             placeholder="Enter your password" required>
+                    <button type="button" class="eye-btn" onclick="togglePassword('student-password', this)">
+                        <i class="bi bi-eye"></i>
+                    </button>
                 </div>
             </div>
             <button type="submit" class="btn-login mb-3">
@@ -109,12 +112,28 @@ if(isset($_SESSION['student_id'])) {
         <p class="text-center text-muted" style="font-size: 12px;">
             Are you a staff? <a href="login.php">Staff Login</a>
         </p>
-
-        <p class="text-center text-muted mt-3 mb-0" style="font-size: 12px;">
+        <p class="text-center text-muted mt-2 mb-0" style="font-size: 12px;">
             &copy; <?= date('Y') ?> Municipality of Cainta — Scholarship Office
         </p>
     </div>
 </div>
+
+<?php include 'chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if(input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
 </body>
 </html>

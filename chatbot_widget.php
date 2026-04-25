@@ -105,7 +105,11 @@ function sendMessage() {
     const formData = new FormData();
     formData.append('message', message);
 
-    fetch('../chatbot.php', {
+    fetch(window.location.pathname.includes('/student/') || 
+        window.location.pathname.includes('/admin/') || 
+        window.location.pathname.includes('/officer/') || 
+        window.location.pathname.includes('/cashier/') 
+        ? '../chatbot.php' : 'chatbot.php', {
         method: 'POST',
         body: formData
     })
