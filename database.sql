@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 03, 2026 at 10:20 AM
+-- Generation Time: Apr 26, 2026 at 10:02 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,8 +48,8 @@ CREATE TABLE `applications` (
 --
 
 INSERT INTO `applications` (`application_id`, `scholar_id`, `school_year`, `semester`, `gwa`, `monthly_income`, `status`, `remarks`, `submitted_at`, `father_name`, `father_occupation`, `mother_name`, `mother_occupation`) VALUES
-(1, 1, '2025-2026', '2nd', 1.20, 15000.00, 'pending', NULL, '2026-04-02 05:20:15', NULL, NULL, NULL, NULL),
-(4, 2, '2026-2027', '2nd', NULL, NULL, 'pending', NULL, '2026-04-03 08:13:46', 'IAN VILLAR', 'DRIVER', 'IRY CALOOYONG MAANO', 'TGP');
+(1, 1, '2025-2026', '2nd', 1.20, 15000.00, 'approved', '', '2026-04-02 05:20:15', NULL, NULL, NULL, NULL),
+(4, 2, '2026-2027', '2nd', NULL, NULL, 'approved', '', '2026-04-03 08:13:46', 'IAN VILLAR', 'DRIVER', 'IRY CALOOYONG MAANO', 'TGP');
 
 -- --------------------------------------------------------
 
@@ -59,7 +59,7 @@ INSERT INTO `applications` (`application_id`, `scholar_id`, `school_year`, `seme
 
 CREATE TABLE `disbursements` (
   `disbursement_id` int(11) NOT NULL,
-  `scholar_id` int(11) DEFAULT NULL,
+  `scholar_id` int(11) NOT NULL,
   `school_year` varchar(20) DEFAULT NULL,
   `semester` enum('1st','2nd') DEFAULT NULL,
   `amount` decimal(10,2) DEFAULT NULL,
@@ -68,6 +68,13 @@ CREATE TABLE `disbursements` (
   `released_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `disbursements`
+--
+
+INSERT INTO `disbursements` (`disbursement_id`, `scholar_id`, `school_year`, `semester`, `amount`, `status`, `released_by`, `released_at`, `created_at`) VALUES
+(4, 1, '2026-2027', '1st', 2500.00, 'released', 1, '2026-04-26 06:34:56', '2026-04-26 06:34:15');
 
 -- --------------------------------------------------------
 
@@ -164,7 +171,8 @@ CREATE TABLE `scholars` (
 --
 
 INSERT INTO `scholars` (`scholar_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `barangay`, `contact_no`, `email`, `school`, `course`, `year_level`, `status`, `created_at`) VALUES
-(1, 'James Brian', 'Villar', 'Maano', '2002-02-28', 'Male', 'Pelican Brgy San Juan Cainta Rizal', 'Brgy. San Juan', '09305629531', 'villarjamesbrian1@gmail.com', 'STI COLLEGE Ortigas Cainta', 'BSIT', 3, 'active', '2026-04-01 06:25:32');
+(5, 'John Ryan', 'Villar', 'Maano', '2002-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '091233456789', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-12 06:01:57'),
+(6, 'Juan', 'Santos', 'Brian', '2001-11-11', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '09123456789', 'villarjamesbrian1@gmail.com', '', '', 1, 'active', '2026-04-21 03:40:53');
 
 -- --------------------------------------------------------
 
@@ -194,7 +202,8 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `email`, `password`, `contact_no`, `address`, `barangay`, `birthdate`, `gender`, `is_active`, `created_at`) VALUES
 (1, 'Juan', 'Santos', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$OOqW0H6YjinxMcoDspHDje4UP30E8clBZUHouUmRek3sPLwYnEl1C', '09123456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2001-11-11', 'Male', 1, '2026-04-01 06:36:35'),
-(2, 'John Ryan', 'Villar', 'Maano', 'johnryanvillar7@gmail.com', '$2y$10$7sl4ID/RAJDl95eIrTHmW.6nvLS7LIlng3WlKUdoL.wD7G4RVJSZK', '091233456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-12', 'Male', 1, '2026-04-02 13:26:18');
+(2, 'John Ryan', 'Villar', 'Maano', 'johnryanvillar7@gmail.com', '$2y$10$7sl4ID/RAJDl95eIrTHmW.6nvLS7LIlng3WlKUdoL.wD7G4RVJSZK', '091233456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-12', 'Male', 1, '2026-04-02 13:26:18'),
+(3, 'Angelus', 'Pacheco', 'Masamoc', 'angeluspacheco2827@gmail.com', '$2y$10$n6yIRI.8tggooG/p3Bkcy.e3O8y696mPdfYLkrl2xXczsO5FZFFRm', '09638982291', 'Tassel St Greenland Subd', 'Brgy. San Juan', '2002-08-28', 'Female', 1, '2026-04-03 13:28:48');
 
 -- --------------------------------------------------------
 
@@ -294,7 +303,7 @@ ALTER TABLE `applications`
 -- AUTO_INCREMENT for table `disbursements`
 --
 ALTER TABLE `disbursements`
-  MODIFY `disbursement_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `disbursement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `documents`
@@ -318,13 +327,13 @@ ALTER TABLE `inventory_transactions`
 -- AUTO_INCREMENT for table `scholars`
 --
 ALTER TABLE `scholars`
-  MODIFY `scholar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `scholar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -335,12 +344,6 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `disbursements`
---
-ALTER TABLE `disbursements`
-  ADD CONSTRAINT `disbursements_ibfk_1` FOREIGN KEY (`scholar_id`) REFERENCES `scholars` (`scholar_id`);
 
 --
 -- Constraints for table `documents`
