@@ -17,7 +17,6 @@ if(isset($_POST['update_status'])) {
 
     // If approved — auto add to scholars table
     if($status == 'approved') {
-        // Get student info from application
         $student = $pdo->prepare("
             SELECT s.*, 
                     (SELECT file_path FROM documents WHERE application_id = ? AND document_type = 'school') as school,
@@ -31,12 +30,10 @@ if(isset($_POST['update_status'])) {
         $std = $student->fetch();
 
         if($std) {
-            // Check if already in scholars table
             $existing = $pdo->prepare("SELECT scholar_id FROM scholars WHERE email = ?");
             $existing->execute([$std['email']]);
             
             if(!$existing->fetch()) {
-                // Add to scholars table
                 $add = $pdo->prepare("INSERT INTO scholars 
                     (first_name, last_name, middle_name, birthdate, gender, address, barangay, contact_no, email, school, course, year_level, status) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
@@ -58,7 +55,7 @@ if(isset($_POST['update_status'])) {
         }
     }
 
-    // Send email notification if approved, rejected or incomplete
+    // Send email notification
     if(in_array($status, ['approved', 'rejected', 'incomplete'])) {
         $student2 = $pdo->prepare("
             SELECT s.email, s.first_name, s.last_name 
@@ -79,6 +76,7 @@ if(isset($_POST['update_status'])) {
     header("Location: applications.php?success=1");
     exit();
 }
+
 // Filter
 $filter = $_GET['filter'] ?? 'all';
 if($filter != 'all') {
@@ -299,13 +297,21 @@ $counts = $pdo->query("SELECT status, COUNT(*) as cnt FROM applications GROUP BY
     </div>
 </div>
 
+<?php include '../chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-
 function viewApplication(app) {
     document.getElementById('modal_app_id').value = app.application_id;
-    document.getElementById('modal_status').value = app.status;
     document.getElementById('modal_remarks').value = app.remarks || '';
+
+    // Hide current status from dropdown
+    const statusSelect = document.getElementById('modal_status');
+    Array.from(statusSelect.options).forEach(opt => {
+        opt.hidden = opt.value === app.status;
+    });
+    // Set first visible option as selected
+    const firstVisible = Array.from(statusSelect.options).find(opt => opt.value !== app.status);
+    if(firstVisible) statusSelect.value = firstVisible.value;
 
     let details = `
         <div class="col-md-6"><div class="text-muted" style="font-size:12px;">Applicant Name</div>
