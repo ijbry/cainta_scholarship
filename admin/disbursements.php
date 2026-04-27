@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_disbursement'])) {
     $scholar_id = $_POST['scholar_id'];
     $school_year = $_POST['school_year'];
     $semester = $_POST['semester'];
-    $amount = $_POST['amount'];
+    $amount = $_POST['amount'] === 'custom' ? $_POST['custom_amount'] : $_POST['amount'];
     $stmt = $pdo->prepare("INSERT INTO disbursements (scholar_id, school_year, semester, amount, status, released_by) VALUES (?, ?, ?, ?, 'pending', ?)");
     $stmt->execute([$scholar_id, $school_year, $semester, $amount, $_SESSION['user_id']]);
     header("Location: disbursements.php?success=added");
@@ -278,7 +278,8 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
                                 <div class="input-group mt-1">
                                     <span class="input-group-text">₱</span>
                                     <input type="number" id="custom-amount-input"
-                                            class="form-control" placeholder="Enter custom amount">
+                                            name="custom_amount" class="form-control"
+                                            placeholder="Enter custom amount" min="1">
                                 </div>
                             </div>
                         </div>
@@ -295,23 +296,34 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
     </div>
 </div>
 
+<?php include '../chatbot_widget.php'; ?>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.querySelectorAll('input[name="amount"]').forEach(radio => {
-    radio.addEventListener('change', function() {
+    radio.addEventListener('change', function () {
         const customDiv = document.getElementById('custom-amount-div');
         const customInput = document.getElementById('custom-amount-input');
-        if(this.value === 'custom') {
+
+        if (this.value === 'custom') {
             customDiv.style.display = 'block';
-            customInput.name = 'amount';
-            this.name = 'amount_radio';
+            customInput.required = true;
         } else {
             customDiv.style.display = 'none';
-            customInput.name = '';
-            this.name = 'amount';
+            customInput.required = false;
+            customInput.value = '';
         }
     });
 });
+
+// Reset modal state when closed
+document.getElementById('addModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('amount1').checked = true;
+    document.getElementById('custom-amount-div').style.display = 'none';
+    document.getElementById('custom-amount-input').required = false;
+    document.getElementById('custom-amount-input').value = '';
+});
+
 </script>
 </body>
 </html>
