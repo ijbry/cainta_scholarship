@@ -38,7 +38,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
     $stmt->execute([$student_id, $school_year, $semester, $father_name, $father_occupation, $mother_name, $mother_occupation]);
     $application_id = $pdo->lastInsertId();
 
-    // Save extra info as document records
     $doc_stmt = $pdo->prepare("INSERT INTO documents (application_id, document_type, file_path) VALUES (?, ?, ?)");
     $doc_stmt->execute([$application_id, 'barangay', $barangay]);
     $doc_stmt->execute([$application_id, 'birthdate', $birthdate]);
@@ -46,7 +45,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
     $doc_stmt->execute([$application_id, 'course', $course]);
     $doc_stmt->execute([$application_id, 'year_level', $year_level]);
 
-    // Handle file uploads
     $upload_dir = '../uploads/';
     $doc_types = ['grade_slip', 'enrollment_receipt', 'enrollment_form'];
 
@@ -90,6 +88,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
         .section-title {
             font-size: 13px; font-weight: 600; color: #1A3A6B;
             border-bottom: 2px solid #e8f0fe; padding-bottom: 6px; margin-bottom: 16px;
+        }
+        .autofilled {
+            background-color: #f0f7ff !important;
+            border-color: #1A3A6B !important;
+        }
+        .autofill-note {
+            font-size: 11px; color: #1A3A6B; margin-top: 4px;
         }
         .status-timeline { position: relative; padding-left: 30px; }
         .status-timeline::before {
@@ -196,25 +201,42 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
         <div class="card-body p-4">
             <form method="POST" enctype="multipart/form-data">
 
-                <!-- 1. Personal Information -->
+                <!-- 1. Personal Information — AUTO-FILLED FROM REGISTRATION -->
                 <p class="section-title"><i class="bi bi-person me-1"></i> Personal Information</p>
+                <div class="alert alert-info py-2 mb-3" style="font-size:13px;">
+                    <i class="bi bi-magic me-1"></i>
+                    Your <strong>Birthdate</strong> and <strong>Barangay</strong> have been auto-filled from your registration info.
+                </div>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label">Birthdate <span class="text-danger">*</span></label>
-                        <input type="date" name="birthdate" class="form-control" required>
+                        <!-- AUTO-FILLED from students table -->
+                        <input type="date" name="birthdate" class="form-control autofilled"
+                                value="<?= htmlspecialchars($student['birthdate'] ?? '') ?>" required>
+                        <div class="autofill-note"><i class="bi bi-check-circle me-1"></i>Auto-filled from your registration</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Barangay <span class="text-danger">*</span></label>
-                        <select name="barangay" class="form-select" required>
-                                    <option value="">Select your barangay</option>
-                                    <option>Brgy. San Andres</option>
-                                    <option>Brgy. San Isidro</option>
-                                    <option>Brgy. San Juan</option>
-                                    <option>Brgy. San Roque</option>
-                                    <option>Brgy. Santa Rosa</option>
-                                    <option>Brgy. Santo Domingo</option>
-                                    <option>Brgy. Santo Niño</option>
+                        <!-- AUTO-FILLED from students table -->
+                        <select name="barangay" class="form-select autofilled" required>
+                            <option value="" disabled>Select your barangay</option>
+                            <?php
+                            $barangays = [
+                                'Brgy. San Andres',
+                                'Brgy. San Isidro',
+                                'Brgy. San Juan',
+                                'Brgy. San Roque',
+                                'Brgy. Santa Rosa',
+                                'Brgy. Santo Domingo',
+                                'Brgy. Santo Niño'
+                            ];
+                            foreach($barangays as $b): ?>
+                            <option value="<?= $b ?>" <?= ($student['barangay'] ?? '') === $b ? 'selected' : '' ?>>
+                                <?= $b ?>
+                            </option>
+                            <?php endforeach; ?>
                         </select>
+                        <div class="autofill-note"><i class="bi bi-check-circle me-1"></i>Auto-filled from your registration</div>
                     </div>
                 </div>
 
@@ -259,7 +281,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
                     <div class="col-md-4">
                         <label class="form-label">Year Level <span class="text-danger">*</span></label>
                         <select name="year_level" class="form-select" required>
-                            <option value="">Select year level</option>
+                            <option value="" disabled selected>Select year level</option>
                             <option value="1">1st Year</option>
                             <option value="2">2nd Year</option>
                             <option value="3">3rd Year</option>
@@ -270,7 +292,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
                     <div class="col-md-4">
                         <label class="form-label">School Year <span class="text-danger">*</span></label>
                         <select name="school_year" class="form-select" required>
-                            <option value="">Select school year</option>
+                            <option value="" disabled selected>Select school year</option>
                             <option value="2025-2026">2025-2026</option>
                             <option value="2026-2027">2026-2027</option>
                         </select>
@@ -278,7 +300,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && !$has_application) {
                     <div class="col-md-4">
                         <label class="form-label">Semester <span class="text-danger">*</span></label>
                         <select name="semester" class="form-select" required>
-                            <option value="">Select semester</option>
+                            <option value="" disabled selected>Select semester</option>
                             <option value="1st">1st Semester</option>
                             <option value="2nd">2nd Semester</option>
                         </select>

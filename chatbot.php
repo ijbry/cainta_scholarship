@@ -8,8 +8,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(['reply' => 'Please type a message.']);
         exit();
     }
-
-    // Paste your Groq API key here — only in this file, never in chat
+    
     $api_key = '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';
     $url     = 'https://api.groq.com/openai/v1/chat/completions';
 

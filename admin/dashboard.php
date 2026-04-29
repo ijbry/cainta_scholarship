@@ -155,7 +155,7 @@ $recent_apps = $pdo->query("
         </div>
     </div>
 </div>
-
+<a href="students.php" class="nav-link"><i class="bi bi-person-lines-fill"></i> Students</a>
 <?php include '../chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

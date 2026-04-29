@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2026 at 10:02 AM
+-- Generation Time: Apr 29, 2026 at 08:36 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,7 +49,8 @@ CREATE TABLE `applications` (
 
 INSERT INTO `applications` (`application_id`, `scholar_id`, `school_year`, `semester`, `gwa`, `monthly_income`, `status`, `remarks`, `submitted_at`, `father_name`, `father_occupation`, `mother_name`, `mother_occupation`) VALUES
 (1, 1, '2025-2026', '2nd', 1.20, 15000.00, 'approved', '', '2026-04-02 05:20:15', NULL, NULL, NULL, NULL),
-(4, 2, '2026-2027', '2nd', NULL, NULL, 'approved', '', '2026-04-03 08:13:46', 'IAN VILLAR', 'DRIVER', 'IRY CALOOYONG MAANO', 'TGP');
+(4, 2, '2026-2027', '2nd', NULL, NULL, 'approved', '', '2026-04-03 08:13:46', 'IAN VILLAR', 'DRIVER', 'IRY CALOOYONG MAANO', 'TGP'),
+(5, 3, '2025-2026', '1st', NULL, NULL, 'pending', NULL, '2026-04-26 15:27:47', 'ASDASDSA', 'ASDASDADA', 'afsfasfaAFDASDA', 'ASFAFFS');
 
 -- --------------------------------------------------------
 
@@ -74,7 +75,8 @@ CREATE TABLE `disbursements` (
 --
 
 INSERT INTO `disbursements` (`disbursement_id`, `scholar_id`, `school_year`, `semester`, `amount`, `status`, `released_by`, `released_at`, `created_at`) VALUES
-(4, 1, '2026-2027', '1st', 2500.00, 'released', 1, '2026-04-26 06:34:56', '2026-04-26 06:34:15');
+(4, 1, '2026-2027', '1st', 2500.00, 'released', 1, '2026-04-26 06:34:56', '2026-04-26 06:34:15'),
+(5, 1, '2026-2027', '1st', 2500.00, 'pending', 1, NULL, '2026-04-27 13:46:19');
 
 -- --------------------------------------------------------
 
@@ -108,7 +110,15 @@ INSERT INTO `documents` (`document_id`, `application_id`, `document_type`, `file
 (9, 4, 'year_level', '1', 0, NULL, NULL),
 (10, 4, 'grade_slip', 'grade_slip_2_1775204026.jpg', 0, NULL, NULL),
 (11, 4, 'enrollment_receipt', 'enrollment_receipt_2_1775204026.jpg', 0, NULL, NULL),
-(12, 4, 'enrollment_form', 'enrollment_form_2_1775204026.jpg', 0, NULL, NULL);
+(12, 4, 'enrollment_form', 'enrollment_form_2_1775204026.jpg', 0, NULL, NULL),
+(13, 5, 'barangay', 'Brgy. Santo Niño', 0, NULL, NULL),
+(14, 5, 'birthdate', '2002-08-28', 0, NULL, NULL),
+(15, 5, 'school', 'ASDASDDAS', 0, NULL, NULL),
+(16, 5, 'course', 'AFSASFAF', 0, NULL, NULL),
+(17, 5, 'year_level', '1', 0, NULL, NULL),
+(18, 5, 'grade_slip', 'grade_slip_3_1777217267.png', 0, NULL, NULL),
+(19, 5, 'enrollment_receipt', 'enrollment_receipt_3_1777217267.png', 0, NULL, NULL),
+(20, 5, 'enrollment_form', 'enrollment_form_3_1777217267.png', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -163,16 +173,19 @@ CREATE TABLE `scholars` (
   `course` varchar(100) DEFAULT NULL,
   `year_level` int(11) DEFAULT NULL,
   `status` enum('active','inactive') DEFAULT 'active',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_archived` tinyint(4) DEFAULT 0,
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `archive_reason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `scholars`
 --
 
-INSERT INTO `scholars` (`scholar_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `barangay`, `contact_no`, `email`, `school`, `course`, `year_level`, `status`, `created_at`) VALUES
-(5, 'John Ryan', 'Villar', 'Maano', '2002-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '091233456789', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-12 06:01:57'),
-(6, 'Juan', 'Santos', 'Brian', '2001-11-11', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '09123456789', 'villarjamesbrian1@gmail.com', '', '', 1, 'active', '2026-04-21 03:40:53');
+INSERT INTO `scholars` (`scholar_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `barangay`, `contact_no`, `email`, `school`, `course`, `year_level`, `status`, `created_at`, `is_archived`, `archived_at`, `archive_reason`) VALUES
+(1, 'James', 'Villar', 'Brian', '2002-09-28', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '09305629555', 'villarjamesbrian1@gmail.com', 'STI', 'BSIT', 1, 'active', '2026-04-29 06:04:29', 0, NULL, NULL),
+(2, 'John Ryan', 'Villar', '', '2006-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '11231312312', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-29 06:07:10', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -193,17 +206,21 @@ CREATE TABLE `students` (
   `birthdate` date DEFAULT NULL,
   `gender` enum('Male','Female') DEFAULT NULL,
   `is_active` tinyint(4) DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_archived` tinyint(4) DEFAULT 0,
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `archive_reason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `email`, `password`, `contact_no`, `address`, `barangay`, `birthdate`, `gender`, `is_active`, `created_at`) VALUES
-(1, 'Juan', 'Santos', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$OOqW0H6YjinxMcoDspHDje4UP30E8clBZUHouUmRek3sPLwYnEl1C', '09123456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2001-11-11', 'Male', 1, '2026-04-01 06:36:35'),
-(2, 'John Ryan', 'Villar', 'Maano', 'johnryanvillar7@gmail.com', '$2y$10$7sl4ID/RAJDl95eIrTHmW.6nvLS7LIlng3WlKUdoL.wD7G4RVJSZK', '091233456789', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-12', 'Male', 1, '2026-04-02 13:26:18'),
-(3, 'Angelus', 'Pacheco', 'Masamoc', 'angeluspacheco2827@gmail.com', '$2y$10$n6yIRI.8tggooG/p3Bkcy.e3O8y696mPdfYLkrl2xXczsO5FZFFRm', '09638982291', 'Tassel St Greenland Subd', 'Brgy. San Juan', '2002-08-28', 'Female', 1, '2026-04-03 13:28:48');
+INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `email`, `password`, `contact_no`, `address`, `barangay`, `birthdate`, `gender`, `is_active`, `created_at`, `is_archived`, `archived_at`, `archive_reason`) VALUES
+(1, 'James', 'Villar', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$sonVHRJ32InepTVyozwuUOrltt7fLWpJSLHy3cqeyV4OtSsHYVNF6', '09305629555', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-28', 'Male', 1, '2026-04-29 06:02:47', 0, NULL, NULL),
+(2, 'John Ryan', 'Villar', '', 'johnryanvillar7@gmail.com', '$2y$10$01W012PzmZ3O1zz/qNKHDeDftNNylEGtFR..IUFLPvCZ17q9Zy1fi', '11231312312', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2006-09-12', 'Male', 1, '2026-04-29 06:06:30', 0, NULL, NULL),
+(3, 'Angelus', 'Pacheco', '', 'angeluspacheco2827@gmail.com', '$2y$10$AvshFkxqNkF3mtNJn9RqI.EVZGxJf7QsP/MvaVw/E4m4mNtXzEP3.', '12311231231', 'Tassel St Greenland Subd', 'Brgy. San Juan', '2002-08-28', 'Female', 1, '2026-04-29 06:13:00', 0, NULL, NULL),
+(4, 'Ian', 'Villar', '', 'jamesbrianvillar928@gmail.com', '$2y$10$3oxly5sI5i8E6dDOB/xWNOPgIKFfA.byyMKq4rQO2/CPDvIe5EJ1.', '12312321312', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Andres', '1978-12-02', 'Male', 1, '2026-04-29 06:13:42', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -297,19 +314,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `applications`
 --
 ALTER TABLE `applications`
-  MODIFY `application_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `application_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `disbursements`
 --
 ALTER TABLE `disbursements`
-  MODIFY `disbursement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `disbursement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `documents`
 --
 ALTER TABLE `documents`
-  MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `document_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `inventory_items`
@@ -327,13 +344,13 @@ ALTER TABLE `inventory_transactions`
 -- AUTO_INCREMENT for table `scholars`
 --
 ALTER TABLE `scholars`
-  MODIFY `scholar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `scholar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`

@@ -8,45 +8,35 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 $id = $_GET['id'] ?? null;
-if(!$id) { header("Location: scholars.php"); exit(); }
+if(!$id) { header("Location: students.php"); exit(); }
 
-$scholar = $pdo->prepare("SELECT * FROM scholars WHERE scholar_id = ?");
-$scholar->execute([$id]);
-$s = $scholar->fetch();
-if(!$s) { header("Location: scholars.php"); exit(); }
+$stmt = $pdo->prepare("SELECT * FROM students WHERE student_id = ?");
+$stmt->execute([$id]);
+$s = $stmt->fetch();
+if(!$s) { header("Location: students.php"); exit(); }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $stmt = $pdo->prepare("UPDATE scholars SET 
-        first_name=?, last_name=?, middle_name=?, birthdate=?, gender=?, 
-        address=?, barangay=?, contact_no=?, email=?, school=?, course=?, year_level=?, status=?
-        WHERE scholar_id=?");
+    $stmt = $pdo->prepare("UPDATE students SET
+        first_name=?, last_name=?, middle_name=?, birthdate=?,
+        gender=?, contact_no=?, barangay=?, address=?, email=?
+        WHERE student_id=?");
     $stmt->execute([
         $_POST['first_name'], $_POST['last_name'], $_POST['middle_name'],
-        $_POST['birthdate'], $_POST['gender'], $_POST['address'],
-        $_POST['barangay'], $_POST['contact_no'], $_POST['email'],
-        $_POST['school'], $_POST['course'], $_POST['year_level'],
-        $_POST['status'], $id
+        $_POST['birthdate'], $_POST['gender'], $_POST['contact_no'],
+        $_POST['barangay'], $_POST['address'], $_POST['email'], $id
     ]);
-    header("Location: scholars.php?success=updated");
+    header("Location: students.php?success=updated");
     exit();
 }
 
-$barangays = [
-    'Brgy. San Andres',
-    'Brgy. San Isidro',
-    'Brgy. San Juan',
-    'Brgy. San Roque',
-    'Brgy. Santa Rosa',
-    'Brgy. Santo Domingo',
-    'Brgy. Santo Niño'
-];
+$barangays = ['Brgy. San Andres','Brgy. San Isidro','Brgy. San Juan','Brgy. San Roque','Brgy. Santa Rosa','Brgy. Santo Domingo','Brgy. Santo Niño'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Scholar | Cainta Scholarship</title>
+    <title>Edit Student | Cainta Scholarship</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -88,7 +78,8 @@ $barangays = [
     </div>
     <nav>
         <a href="dashboard.php" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <a href="scholars.php" class="nav-link active"><i class="bi bi-people"></i> Scholars</a>
+        <a href="scholars.php" class="nav-link"><i class="bi bi-people"></i> Scholars</a>
+        <a href="students.php" class="nav-link active"><i class="bi bi-person-lines-fill"></i> Students</a>
         <a href="applications.php" class="nav-link"><i class="bi bi-file-earmark-text"></i> Applications</a>
         <a href="disbursements.php" class="nav-link"><i class="bi bi-cash-stack"></i> Disbursements</a>
         <a href="reports.php" class="nav-link"><i class="bi bi-bar-chart"></i> Reports</a>
@@ -101,19 +92,17 @@ $barangays = [
 <div class="main-content">
     <div class="topbar">
         <div>
-            <h5 class="mb-0 fw-bold">Edit Scholar</h5>
-            <small class="text-muted">Update scholar information</small>
+            <h5 class="mb-0 fw-bold">Edit Student</h5>
+            <small class="text-muted">Update student information</small>
         </div>
-        <a href="scholars.php" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> Back to Scholars
+        <a href="students.php" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Students
         </a>
     </div>
 
     <div class="card">
         <div class="card-body p-4">
             <form method="POST">
-
-                <!-- Personal Information -->
                 <p class="section-title"><i class="bi bi-person me-1"></i> Personal Information</p>
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
@@ -129,7 +118,7 @@ $barangays = [
                     <div class="col-md-4">
                         <label class="form-label">Middle Name</label>
                         <input type="text" name="middle_name" class="form-control"
-                                value="<?= htmlspecialchars($s['middle_name']) ?>">
+                                value="<?= htmlspecialchars($s['middle_name'] ?? '') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Birthdate</label>
@@ -144,23 +133,18 @@ $barangays = [
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="active" <?= $s['status']=='active'?'selected':'' ?>>Active</option>
-                            <option value="inactive" <?= $s['status']=='inactive'?'selected':'' ?>>Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
                         <label class="form-label">Contact Number</label>
-                        <input type="text" name="contact_no" class="form-control"
-                                value="<?= htmlspecialchars($s['contact_no']) ?>">
+                        <input type="tel" name="contact_no" class="form-control"
+                                inputmode="numeric" pattern="[0-9]*" maxlength="11"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                value="<?= htmlspecialchars($s['contact_no'] ?? '') ?>">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Email</label>
+                    <div class="col-md-6">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control"
-                                value="<?= htmlspecialchars($s['email']) ?>">
+                                value="<?= htmlspecialchars($s['email']) ?>" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label">Barangay <span class="text-danger">*</span></label>
                         <select name="barangay" class="form-select" required>
                             <option value="">Select barangay</option>
@@ -171,38 +155,14 @@ $barangays = [
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">Home Address</label>
-                        <textarea name="address" class="form-control" rows="2"><?= htmlspecialchars($s['address']) ?></textarea>
+                        <textarea name="address" class="form-control" rows="2"><?= htmlspecialchars($s['address'] ?? '') ?></textarea>
                     </div>
-                </div>
-
-                <!-- School Information -->
-                <p class="section-title"><i class="bi bi-book me-1"></i> School Information</p>
-                <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <label class="form-label">School/University</label>
-                        <input type="text" name="school" class="form-control"
-                                value="<?= htmlspecialchars($s['school']) ?>">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Course</label>
-                        <input type="text" name="course" class="form-control"
-                                value="<?= htmlspecialchars($s['course']) ?>">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Year Level</label>
-                        <select name="year_level" class="form-select">
-                            <?php
-                            $suffixes = ['', '1st', '2nd', '3rd', '4th', '5th'];
-                            for($y=1; $y<=5; $y++): ?>
-                        <option value="<?= $y ?>" <?= $s['year_level']==$y?'selected':'' ?>><?= $suffixes[$y] ?> Year</option>
-                        <?php endfor; ?>
-                        </select>
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
-                    <a href="scholars.php" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="students.php" class="btn btn-outline-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save me-1"></i> Update Scholar
+                        <i class="bi bi-save me-1"></i> Update Student
                     </button>
                 </div>
             </form>

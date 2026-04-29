@@ -109,9 +109,6 @@ if(isset($_SESSION['student_id'])) {
         <p class="text-center text-muted" style="font-size: 13px;">
             Don't have an account? <a href="student_register.php">Register here</a>
         </p>
-        <p class="text-center text-muted" style="font-size: 12px;">
-            Are you a staff? <a href="login.php">Staff Login</a>
-        </p>
         <p class="text-center text-muted mt-2 mb-0" style="font-size: 12px;">
             &copy; <?= date('Y') ?> Municipality of Cainta — Scholarship Office
         </p>

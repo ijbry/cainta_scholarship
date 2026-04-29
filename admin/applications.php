@@ -398,7 +398,7 @@ function viewApplication(app) {
     let modal = new bootstrap.Modal(document.getElementById('reviewModal'));
     modal.show();
 }
-<?php include '../chatbot_widget.php'; ?>
+
 </script>
 </body>
 </html>

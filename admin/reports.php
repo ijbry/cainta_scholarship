@@ -8,15 +8,12 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 // Get stats for reports
-$total_scholars = $pdo->query("SELECT COUNT(*) FROM scholars WHERE status='active'")->fetchColumn();
 $total_students = $pdo->query("SELECT COUNT(*) FROM students")->fetchColumn();
 $total_applications = $pdo->query("SELECT COUNT(*) FROM applications")->fetchColumn();
 $approved = $pdo->query("SELECT COUNT(*) FROM applications WHERE status='approved'")->fetchColumn();
 $pending = $pdo->query("SELECT COUNT(*) FROM applications WHERE status='pending'")->fetchColumn();
 $rejected = $pdo->query("SELECT COUNT(*) FROM applications WHERE status='rejected'")->fetchColumn();
 $total_disbursed = $pdo->query("SELECT SUM(amount) FROM disbursements WHERE status='released'")->fetchColumn();
-$total_inventory = $pdo->query("SELECT COUNT(*) FROM inventory_items")->fetchColumn();
-$low_stock = $pdo->query("SELECT COUNT(*) FROM inventory_items WHERE quantity <= reorder_level")->fetchColumn();
 
 // Get applications by barangay
 $by_barangay = $pdo->query("
@@ -86,7 +83,6 @@ $all_apps = $pdo->query("
         .badge-approved { background: #d1e7dd; color: #0f5132; }
         .badge-rejected { background: #f8d7da; color: #842029; }
         .badge-for_review { background: #cfe2ff; color: #084298; }
-        .badge-incomplete { background: #f8d7da; color: #842029; }
         @media print {
             .sidebar, .topbar, .no-print { display: none !important; }
             .main-content { margin-left: 0 !important; padding: 0 !important; }
@@ -118,14 +114,12 @@ $all_apps = $pdo->query("
             <h5 class="mb-0 fw-bold">Reports</h5>
             <small class="text-muted">Scholarship program summary and analytics</small>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-                <i class="bi bi-printer me-1"></i> Print Report
-            </button>
-        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Print Report
+        </button>
     </div>
 
-    <!-- Report Header (visible when printed) -->
+    <!-- Report Header (print only) -->
     <div class="text-center mb-4 d-none d-print-block">
         <h4 class="fw-bold">Municipality of Cainta — Scholarship Program</h4>
         <h5>Scholarship Program Report</h5>
@@ -226,7 +220,7 @@ $all_apps = $pdo->query("
         </div>
     </div>
 
-    <!-- All Applications Table -->
+    <!-- Complete Application List -->
     <div class="card mb-4">
         <div class="card-body">
             <h6 class="fw-bold mb-3"><i class="bi bi-table me-1"></i> Complete Application List</h6>
@@ -234,15 +228,8 @@ $all_apps = $pdo->query("
                 <table class="table table-sm table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Barangay</th>
-                            <th>School Year</th>
-                            <th>Semester</th>
-                            <th>Father</th>
-                            <th>Mother</th>
-                            <th>Status</th>
-                            <th>Submitted</th>
+                            <th>#</th><th>Name</th><th>Barangay</th><th>School Year</th>
+                            <th>Semester</th><th>Father</th><th>Mother</th><th>Status</th><th>Submitted</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -270,21 +257,15 @@ $all_apps = $pdo->query("
     </div>
 
     <!-- Disbursement Report -->
-    <div class="card mb-4">
+    <div class="card">
         <div class="card-body">
             <h6 class="fw-bold mb-3"><i class="bi bi-cash-stack me-1"></i> Disbursement Report</h6>
             <div class="table-responsive">
                 <table class="table table-sm table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
-                            <th>Scholar</th>
-                            <th>Barangay</th>
-                            <th>School Year</th>
-                            <th>Semester</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Released</th>
+                            <th>#</th><th>Scholar</th><th>Barangay</th><th>School Year</th>
+                            <th>Semester</th><th>Amount</th><th>Status</th><th>Released</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -316,49 +297,8 @@ $all_apps = $pdo->query("
             </div>
         </div>
     </div>
-
-    <!-- Inventory Report -->
-    <div class="card">
-        <div class="card-body">
-            <h6 class="fw-bold mb-3"><i class="bi bi-box-seam me-1"></i> Inventory Report</h6>
-            <?php
-            $inventory = $pdo->query("SELECT * FROM inventory_items ORDER BY item_name ASC")->fetchAll();
-            ?>
-            <div class="table-responsive">
-                <table class="table table-sm table-hover align-middle">
-                    <thead class="table-light">
-                        <tr><th>#</th><th>Item</th><th>Category</th><th>Unit</th><th>Stock</th><th>Reorder Level</th><th>Status</th></tr>
-                    </thead>
-                    <tbody>
-                        <?php if(empty($inventory)): ?>
-                        <tr><td colspan="7" class="text-center text-muted py-3">No inventory items yet.</td></tr>
-                        <?php else: ?>
-                        <?php foreach($inventory as $i => $item): ?>
-                        <tr>
-                            <td><?= $i + 1 ?></td>
-                            <td><strong><?= htmlspecialchars($item['item_name']) ?></strong></td>
-                            <td><?= htmlspecialchars($item['category']) ?></td>
-                            <td><?= htmlspecialchars($item['unit']) ?></td>
-                            <td><?= $item['quantity'] ?></td>
-                            <td><?= $item['reorder_level'] ?></td>
-                            <td>
-                                <?php if($item['quantity'] == 0): ?>
-                                <span class="badge bg-danger">Out of Stock</span>
-                                <?php elseif($item['quantity'] <= $item['reorder_level']): ?>
-                                <span class="badge bg-warning text-dark">Low Stock</span>
-                                <?php else: ?>
-                                <span class="badge bg-success">In Stock</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
+
 <?php include '../chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

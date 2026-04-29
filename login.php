@@ -110,9 +110,6 @@ if(isset($_SESSION['user_id'])) {
             </button>
         </form>
 
-        <p class="text-center text-muted mt-3 mb-0" style="font-size: 12px;">
-            Are you a student? <a href="student_login.php">Student Login here</a>
-        </p>
         <p class="text-center text-muted mt-2 mb-0" style="font-size: 12px;">
             &copy; <?= date('Y') ?> Municipality of Cainta — Scholarship Office
         </p>

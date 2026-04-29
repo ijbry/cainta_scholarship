@@ -2,29 +2,34 @@
 session_start();
 require_once '../includes/db.php';
 
-if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
+// Allow both admin and cashier
+if(!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'cashier'])) {
     header("Location: ../login.php");
     exit();
 }
 
-// Handle add disbursement
-if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_disbursement'])) {
+$is_admin = $_SESSION['role'] == 'admin';
+
+// Handle add disbursement (admin only)
+if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_disbursement']) && $is_admin) {
     $scholar_id = $_POST['scholar_id'];
     $school_year = $_POST['school_year'];
     $semester = $_POST['semester'];
     $amount = $_POST['amount'] === 'custom' ? $_POST['custom_amount'] : $_POST['amount'];
     $stmt = $pdo->prepare("INSERT INTO disbursements (scholar_id, school_year, semester, amount, status, released_by) VALUES (?, ?, ?, ?, 'pending', ?)");
     $stmt->execute([$scholar_id, $school_year, $semester, $amount, $_SESSION['user_id']]);
+    $redirect = $is_admin ? 'disbursements.php' : '../cashier/dashboard.php';
     header("Location: disbursements.php?success=added");
     exit();
 }
 
-// Handle release
+// Handle release (both admin and cashier)
 if(isset($_GET['release'])) {
     $id = $_GET['release'];
-    $stmt = $pdo->prepare("UPDATE disbursements SET status='released', released_at=NOW() WHERE disbursement_id=?");
-    $stmt->execute([$id]);
-    header("Location: disbursements.php?success=released");
+    $stmt = $pdo->prepare("UPDATE disbursements SET status='released', released_at=NOW(), released_by=? WHERE disbursement_id=?");
+    $stmt->execute([$_SESSION['user_id'], $id]);
+    $redirect = $is_admin ? 'disbursements.php?success=released' : '../cashier/dashboard.php?success=released';
+    header("Location: " . $redirect);
     exit();
 }
 
@@ -38,14 +43,17 @@ $disbursements = $pdo->query("
     ORDER BY d.created_at DESC
 ")->fetchAll();
 
-// Get approved students for dropdown
-$students = $pdo->query("
-    SELECT DISTINCT s.student_id, s.first_name, s.last_name, s.barangay
-    FROM students s
-    JOIN applications a ON s.student_id = a.scholar_id
-    WHERE a.status = 'approved'
-    ORDER BY s.last_name ASC
-")->fetchAll();
+// Get approved students for dropdown (admin only)
+$students = [];
+if($is_admin) {
+    $students = $pdo->query("
+        SELECT DISTINCT s.student_id, s.first_name, s.last_name, s.barangay
+        FROM students s
+        JOIN applications a ON s.student_id = a.scholar_id
+        WHERE a.status = 'approved'
+        ORDER BY s.last_name ASC
+    ")->fetchAll();
+}
 
 // Stats
 $total_released = $pdo->query("SELECT SUM(amount) FROM disbursements WHERE status='released'")->fetchColumn();
@@ -89,9 +97,19 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid;
         }
         .card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        /* Cashier topbar style */
+        .cashier-topbar {
+            background: #1A3A6B; padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cashier-topbar-brand { color: white; font-size: 16px; font-weight: 600; }
+        .cashier-topbar-right { color: rgba(255,255,255,0.8); font-size: 13px; }
     </style>
 </head>
 <body>
+
+<?php if($is_admin): ?>
+<!-- Admin Sidebar -->
 <div class="sidebar">
     <div class="sidebar-brand">
         <i class="bi bi-mortarboard-fill me-2"></i>Cainta Scholarship
@@ -108,22 +126,49 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
         <a href="../logout.php" class="nav-link"><i class="bi bi-box-arrow-left"></i> Logout</a>
     </nav>
 </div>
-
 <div class="main-content">
+<?php else: ?>
+<!-- Cashier Topbar -->
+<div class="cashier-topbar">
+    <span class="cashier-topbar-brand"><i class="bi bi-mortarboard-fill me-2"></i>Cainta Scholarship — Cashier Counter</span>
+    <div class="cashier-topbar-right">
+        <i class="bi bi-person-circle me-1"></i><?= htmlspecialchars($_SESSION['full_name']) ?>
+        <a href="../logout.php" class="btn btn-sm btn-outline-light ms-3">
+            <i class="bi bi-box-arrow-left me-1"></i>Logout
+        </a>
+    </div>
+</div>
+<div class="p-4">
+<?php endif; ?>
+
     <div class="topbar">
         <div>
             <h5 class="mb-0 fw-bold">Disbursements</h5>
-            <small class="text-muted">Manage scholar allowance releases</small>
+            <small class="text-muted">
+                <?= $is_admin ? 'Manage scholar allowance releases' : 'Release pending scholar allowances' ?>
+            </small>
         </div>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
-            <i class="bi bi-plus-circle me-1"></i> Add Disbursement
-        </button>
+        <div class="d-flex gap-2">
+            <?php if(!$is_admin): ?>
+            <a href="../cashier/dashboard.php" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+            <?php endif; ?>
+            <?php if($is_admin): ?>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-circle me-1"></i> Add Disbursement
+            </button>
+            <?php endif; ?>
+        </div>
     </div>
 
     <?php if(isset($_GET['success'])): ?>
     <div class="alert alert-success alert-dismissible fade show">
         <i class="bi bi-check-circle me-1"></i>
-        <?= $_GET['success'] == 'added' ? 'Disbursement added successfully!' : 'Allowance released successfully!' ?>
+        <?php
+        if($_GET['success'] == 'added') echo 'Disbursement added successfully!';
+        elseif($_GET['success'] == 'released') echo 'Allowance released successfully!';
+        ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     <?php endif; ?>
@@ -153,6 +198,13 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
     <!-- Disbursements Table -->
     <div class="card">
         <div class="card-body">
+            <?php if($total_pending > 0 && !$is_admin): ?>
+            <div class="alert alert-warning py-2 mb-3" style="font-size:13px;">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                There <?= $total_pending == 1 ? 'is' : 'are' ?> <strong><?= $total_pending ?></strong>
+                pending disbursement<?= $total_pending > 1 ? 's' : '' ?> waiting to be released.
+            </div>
+            <?php endif; ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
@@ -165,13 +217,14 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Released At</th>
+                            <th>Released By</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if(empty($disbursements)): ?>
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">
+                            <td colspan="10" class="text-center text-muted py-4">
                                 <i class="bi bi-cash-stack fs-3 d-block mb-2"></i>
                                 No disbursements yet.
                             </td>
@@ -190,18 +243,17 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
                                     <?= ucfirst($d['status']) ?>
                                 </span>
                             </td>
-                            <td>
-                                <?= $d['released_at'] ? date('M d, Y', strtotime($d['released_at'])) : '—' ?>
-                            </td>
+                            <td><?= $d['released_at'] ? date('M d, Y', strtotime($d['released_at'])) : '—' ?></td>
+                            <td style="font-size:12px; color:#666;"><?= $d['released_by_name'] ? htmlspecialchars($d['released_by_name']) : '—' ?></td>
                             <td>
                                 <?php if($d['status'] == 'pending'): ?>
                                 <a href="disbursements.php?release=<?= $d['disbursement_id'] ?>"
                                     class="btn btn-sm btn-success"
-                                    onclick="return confirm('Release allowance for <?= htmlspecialchars($d['first_name']) ?>?')">
+                                    onclick="return confirm('Release ₱<?= number_format($d['amount'],2) ?> for <?= htmlspecialchars($d['first_name'] . ' ' . $d['last_name']) ?>?')">
                                     <i class="bi bi-check-circle me-1"></i> Release
                                 </a>
                                 <?php else: ?>
-                                <span class="text-muted" style="font-size:13px;">Released</span>
+                                <span class="text-muted" style="font-size:13px;"><i class="bi bi-check2-all me-1"></i>Done</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -212,9 +264,15 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
             </div>
         </div>
     </div>
-</div>
 
-<!-- Add Disbursement Modal -->
+<?php if($is_admin): ?>
+</div>
+<?php else: ?>
+</div>
+<?php endif; ?>
+
+<?php if($is_admin): ?>
+<!-- Add Disbursement Modal (admin only) -->
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -254,32 +312,22 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
                         <label class="form-label">Amount <span class="text-danger">*</span></label>
                         <div class="d-flex flex-column gap-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="amount"
-                                        id="amount1" value="2500" checked required>
-                                <label class="form-check-label" for="amount1">
-                                    ₱2,500.00 — Standard Allowance
-                                </label>
+                                <input class="form-check-input" type="radio" name="amount" id="amount1" value="2500" checked required>
+                                <label class="form-check-label" for="amount1">₱2,500.00 — Standard Allowance</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="amount"
-                                        id="amount2" value="5000" required>
-                                <label class="form-check-label" for="amount2">
-                                    ₱5,000.00 — Special Allowance
-                                </label>
+                                <input class="form-check-input" type="radio" name="amount" id="amount2" value="5000" required>
+                                <label class="form-check-label" for="amount2">₱5,000.00 — Special Allowance</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="amount"
-                                        id="amount3" value="custom" required>
-                                <label class="form-check-label" for="amount3">
-                                    Custom Amount
-                                </label>
+                                <input class="form-check-input" type="radio" name="amount" id="amount3" value="custom" required>
+                                <label class="form-check-label" for="amount3">Custom Amount</label>
                             </div>
                             <div id="custom-amount-div" style="display:none;">
                                 <div class="input-group mt-1">
                                     <span class="input-group-text">₱</span>
-                                    <input type="number" id="custom-amount-input"
-                                            name="custom_amount" class="form-control"
-                                            placeholder="Enter custom amount" min="1">
+                                    <input type="number" id="custom-amount-input" name="custom_amount"
+                                            class="form-control" placeholder="Enter custom amount" min="1">
                                 </div>
                             </div>
                         </div>
@@ -295,16 +343,16 @@ $total_scholars_disbursed = $pdo->query("SELECT COUNT(DISTINCT scholar_id) FROM 
         </div>
     </div>
 </div>
+<?php endif; ?>
 
-<?php include '../chatbot_widget.php'; ?>
-
+<?php if($is_admin) include '../chatbot_widget.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+<?php if($is_admin): ?>
 document.querySelectorAll('input[name="amount"]').forEach(radio => {
     radio.addEventListener('change', function () {
         const customDiv = document.getElementById('custom-amount-div');
         const customInput = document.getElementById('custom-amount-input');
-
         if (this.value === 'custom') {
             customDiv.style.display = 'block';
             customInput.required = true;
@@ -315,15 +363,13 @@ document.querySelectorAll('input[name="amount"]').forEach(radio => {
         }
     });
 });
-
-// Reset modal state when closed
 document.getElementById('addModal').addEventListener('hidden.bs.modal', function () {
     document.getElementById('amount1').checked = true;
     document.getElementById('custom-amount-div').style.display = 'none';
     document.getElementById('custom-amount-input').required = false;
     document.getElementById('custom-amount-input').value = '';
 });
-
+<?php endif; ?>
 </script>
 </body>
 </html>
