@@ -1,57 +1,27 @@
 <?php
 session_start();
 
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $message = $_POST['message'] ?? '';
+    $lang    = $_POST['lang'] ?? 'en';
 
-    if(empty($message)) {
-        echo json_encode(['reply' => 'Please type a message.']);
+    if (empty($message)) {
+        echo json_encode(['reply' => $lang === 'tl' ? 'Pakisulat ang iyong mensahe.' : 'Please type a message.']);
         exit();
     }
-    
-    $api_key = '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';
+
+    $api_key = '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';
     $url     = 'https://api.groq.com/openai/v1/chat/completions';
 
-    // ✅ PHP detects if message is Tagalog or English
-    // Common Tagalog words to detect Filipino messages
-    $tagalog_words = [
-        'ano', 'paano', 'saan', 'sino', 'bakit', 'kailan', 'magkano',
-        'ako', 'ikaw', 'siya', 'kami', 'kayo', 'sila', 'namin', 'nila',
-        'ang', 'ng', 'sa', 'na', 'at', 'ay', 'mga', 'po', 'opo', 'ho',
-        'yung', 'yun', 'ito', 'iyan', 'iyon', 'dito', 'diyan', 'doon',
-        'hindi', 'oo', 'paki', 'pwede', 'gusto', 'kailangan', 'mayroon',
-        'wala', 'meron', 'para', 'kung', 'kapag', 'dahil', 'kasi',
-        'salamat', 'kumusta', 'maganda', 'naman', 'talaga', 'lang',
-        'din', 'rin', 'nga', 'ba', 'daw', 'raw', 'sana', 'siguro',
-        'mag', 'nag', 'pag', 'mag-', 'nag-', 'makuha', 'makita',
-        'requirements', // sometimes Tagalog users say this
-    ];
-
-    $message_lower = strtolower($message);
-    $words_in_message = preg_split('/\s+/', $message_lower);
-    
-    $tagalog_count = 0;
-    foreach ($words_in_message as $word) {
-        $word_clean = preg_replace('/[^a-z]/', '', $word);
-        if (in_array($word_clean, $tagalog_words)) {
-            $tagalog_count++;
-        }
-    }
-
-    // If more than 0 Tagalog words found, treat as Tagalog
-    $is_tagalog = $tagalog_count > 0;
-    
-    if ($is_tagalog) {
-        $language_instruction = "IMPORTANT: The user is writing in Filipino/Tagalog. You MUST reply in Tagalog/Filipino only. Do not use English in your reply.";
+    if ($lang === 'tl') {
+        $language_instruction = "MAHALAGA: Ang gumagamit ay pinili ang Filipino/Tagalog. DAPAT kang sumagot sa Tagalog/Filipino LAMANG. Huwag gumamit ng English sa iyong sagot. Maging magalang at palakaibigang sumagot.";
     } else {
-        $language_instruction = "IMPORTANT: The user is writing in English. You MUST reply in English only. Do not use Tagalog or Filipino in your reply.";
+        $language_instruction = "IMPORTANT: The user has selected English. You MUST reply in English ONLY. Do not use Tagalog or Filipino in your reply. Be friendly and professional.";
     }
 
     $system_prompt = "You are an intelligent assistant for the Web-Based Scholarship Management System of the Cainta Scholarship Program, Municipality of Cainta, Rizal, Philippines.
 
 $language_instruction
-
-Here is everything you know about the system:
 
 === ABOUT THE PROGRAM ===
 - The Cainta Scholarship Program provides financial assistance to deserving students who are residents of Cainta, Rizal.
@@ -123,18 +93,24 @@ Here is everything you know about the system:
     curl_close($ch);
 
     if ($curl_error) {
-        echo json_encode(['reply' => 'Connection error: ' . $curl_error]);
+        echo json_encode(['reply' => $lang === 'tl'
+            ? 'Error sa koneksyon: ' . $curl_error
+            : 'Connection error: ' . $curl_error]);
         exit();
     }
 
     if ($http_code === 429) {
-        echo json_encode(['reply' => 'The assistant is currently busy. Please try again in a few seconds.']);
+        echo json_encode(['reply' => $lang === 'tl'
+            ? 'Abala ang assistant ngayon. Pakisubukang muli pagkaraan ng ilang segundo.'
+            : 'The assistant is currently busy. Please try again in a few seconds.']);
         exit();
     }
 
     if ($http_code !== 200) {
         $err = json_decode($response, true);
-        echo json_encode(['reply' => 'Error ' . $http_code . ': ' . ($err['error']['message'] ?? $response)]);
+        echo json_encode(['reply' => $lang === 'tl'
+            ? 'May error na naganap. Pakisubukang muli.'
+            : 'Error ' . $http_code . ': ' . ($err['error']['message'] ?? $response)]);
         exit();
     }
 
@@ -143,7 +119,9 @@ Here is everything you know about the system:
     if (isset($result['choices'][0]['message']['content'])) {
         $reply = $result['choices'][0]['message']['content'];
     } else {
-        $reply = 'Sorry, I could not process your request. Please try again.';
+        $reply = $lang === 'tl'
+            ? 'Paumanhin, hindi ko maproseso ang iyong kahilingan. Pakisubukang muli.'
+            : 'Sorry, I could not process your request. Please try again.';
     }
 
     echo json_encode(['reply' => $reply]);
