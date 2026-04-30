@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 29, 2026 at 08:36 AM
+-- Generation Time: Apr 30, 2026 at 02:50 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -69,14 +69,6 @@ CREATE TABLE `disbursements` (
   `released_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `disbursements`
---
-
-INSERT INTO `disbursements` (`disbursement_id`, `scholar_id`, `school_year`, `semester`, `amount`, `status`, `released_by`, `released_at`, `created_at`) VALUES
-(4, 1, '2026-2027', '1st', 2500.00, 'released', 1, '2026-04-26 06:34:56', '2026-04-26 06:34:15'),
-(5, 1, '2026-2027', '1st', 2500.00, 'pending', 1, NULL, '2026-04-27 13:46:19');
 
 -- --------------------------------------------------------
 
@@ -184,8 +176,8 @@ CREATE TABLE `scholars` (
 --
 
 INSERT INTO `scholars` (`scholar_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `barangay`, `contact_no`, `email`, `school`, `course`, `year_level`, `status`, `created_at`, `is_archived`, `archived_at`, `archive_reason`) VALUES
-(1, 'James', 'Villar', 'Brian', '2002-09-28', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '09305629555', 'villarjamesbrian1@gmail.com', 'STI', 'BSIT', 1, 'active', '2026-04-29 06:04:29', 0, NULL, NULL),
-(2, 'John Ryan', 'Villar', '', '2006-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '11231312312', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-29 06:07:10', 0, NULL, NULL);
+(1, 'John Ryan', 'Villar', '', '2006-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Andres', '09123132123', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-30 00:40:17', 0, NULL, NULL),
+(2, 'James', 'Villar', 'Brian', '2002-09-28', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '09305622222', 'villarjamesbrian1@gmail.com', 'STI COLLEGE ORTIGAS-CAINTA', 'BSIT', 1, 'active', '2026-04-30 00:40:28', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -217,10 +209,9 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`student_id`, `first_name`, `last_name`, `middle_name`, `email`, `password`, `contact_no`, `address`, `barangay`, `birthdate`, `gender`, `is_active`, `created_at`, `is_archived`, `archived_at`, `archive_reason`) VALUES
-(1, 'James', 'Villar', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$sonVHRJ32InepTVyozwuUOrltt7fLWpJSLHy3cqeyV4OtSsHYVNF6', '09305629555', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-28', 'Male', 1, '2026-04-29 06:02:47', 0, NULL, NULL),
-(2, 'John Ryan', 'Villar', '', 'johnryanvillar7@gmail.com', '$2y$10$01W012PzmZ3O1zz/qNKHDeDftNNylEGtFR..IUFLPvCZ17q9Zy1fi', '11231312312', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2006-09-12', 'Male', 1, '2026-04-29 06:06:30', 0, NULL, NULL),
-(3, 'Angelus', 'Pacheco', '', 'angeluspacheco2827@gmail.com', '$2y$10$AvshFkxqNkF3mtNJn9RqI.EVZGxJf7QsP/MvaVw/E4m4mNtXzEP3.', '12311231231', 'Tassel St Greenland Subd', 'Brgy. San Juan', '2002-08-28', 'Female', 1, '2026-04-29 06:13:00', 0, NULL, NULL),
-(4, 'Ian', 'Villar', '', 'jamesbrianvillar928@gmail.com', '$2y$10$3oxly5sI5i8E6dDOB/xWNOPgIKFfA.byyMKq4rQO2/CPDvIe5EJ1.', '12312321312', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Andres', '1978-12-02', 'Male', 1, '2026-04-29 06:13:42', 0, NULL, NULL);
+(1, 'James', 'Villar', 'Brian', 'villarjamesbrian1@gmail.com', '$2y$10$xkD9aZiyqQKTURkemomCi.kSacSq8py0TyOQybEFYxZVNq44YnNjq', '09305622222', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '2002-09-28', 'Male', 1, '2026-04-30 00:37:13', 0, NULL, NULL),
+(2, 'John Ryan', 'Villar', '', 'johnryanvillar7@gmail.com', '$2y$10$sHQuxt.pCb7MeTi6Gnh/9em5FiePCWUuYNJwLVjUjlet8uOMQx1F.', '09123132123', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Andres', '2006-09-12', 'Male', 1, '2026-04-30 00:39:19', 0, NULL, NULL),
+(3, 'Angelus', 'Pacheco', '', 'angeluspacheco2827@gmail.com', '$2y$10$cFpKYROvue8ELspWWN9bgOniHTRjX1T5AIBvf5jdUl7A7NIsyKJCG', '09612376162', 'Tassel St Greenland Subd', 'Brgy. San Isidro', '2002-08-28', 'Female', 1, '2026-04-30 00:39:55', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -320,7 +311,7 @@ ALTER TABLE `applications`
 -- AUTO_INCREMENT for table `disbursements`
 --
 ALTER TABLE `disbursements`
-  MODIFY `disbursement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `disbursement_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `documents`
@@ -350,7 +341,7 @@ ALTER TABLE `scholars`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
