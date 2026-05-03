@@ -10,7 +10,37 @@ if(!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 // Handle delete
 if(isset($_GET['delete'])) {
     $id = $_GET['delete'];
+
+    // Get scholar email first
+    $scholar = $pdo->prepare("SELECT email FROM scholars WHERE scholar_id = ?");
+    $scholar->execute([$id]);
+    $sch = $scholar->fetch();
+
+    if($sch) {
+        // Get student_id from email
+        $student = $pdo->prepare("SELECT student_id FROM students WHERE email = ?");
+        $student->execute([$sch['email']]);
+        $std = $student->fetch();
+
+        if($std) {
+            // Delete documents first
+            $pdo->prepare("
+                DELETE FROM documents WHERE application_id IN (
+                    SELECT application_id FROM applications WHERE scholar_id = ?
+                )
+            ")->execute([$std['student_id']]);
+
+            // Delete disbursements
+            $pdo->prepare("DELETE FROM disbursements WHERE scholar_id = ?")->execute([$std['student_id']]);
+
+            // Delete applications completely
+            $pdo->prepare("DELETE FROM applications WHERE scholar_id = ?")->execute([$std['student_id']]);
+        }
+    }
+
+    // Delete from scholars
     $pdo->prepare("DELETE FROM scholars WHERE scholar_id = ?")->execute([$id]);
+
     header("Location: scholars.php?success=deleted");
     exit();
 }
@@ -19,6 +49,34 @@ if(isset($_GET['delete'])) {
 if(isset($_GET['archive'])) {
     $id = $_GET['archive'];
     $reason = $_GET['reason'] ?? 'No reason provided';
+
+    // Get scholar email
+    $scholar = $pdo->prepare("SELECT email FROM scholars WHERE scholar_id = ?");
+    $scholar->execute([$id]);
+    $sch = $scholar->fetch();
+
+    if($sch) {
+        // Get student_id
+        $student = $pdo->prepare("SELECT student_id FROM students WHERE email = ?");
+        $student->execute([$sch['email']]);
+        $std = $student->fetch();
+
+        if($std) {
+            // Delete documents first
+            $pdo->prepare("
+                DELETE FROM documents WHERE application_id IN (
+                    SELECT application_id FROM applications WHERE scholar_id = ?
+                )
+            ")->execute([$std['student_id']]);
+
+            // Delete disbursements
+            $pdo->prepare("DELETE FROM disbursements WHERE scholar_id = ?")->execute([$std['student_id']]);
+
+            // Delete applications so student can reapply
+            $pdo->prepare("DELETE FROM applications WHERE scholar_id = ?")->execute([$std['student_id']]);
+        }
+    }
+
     $pdo->prepare("UPDATE scholars SET is_archived=1, archived_at=NOW(), archive_reason=? WHERE scholar_id=?")->execute([$reason, $id]);
     header("Location: scholars.php?success=archived");
     exit();

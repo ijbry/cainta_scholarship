@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    $api_key = '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';
+    $api_key = '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';
     $url     = 'https://api.groq.com/openai/v1/chat/completions';
 
     if ($lang === 'tl') {

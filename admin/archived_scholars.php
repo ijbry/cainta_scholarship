@@ -18,6 +18,23 @@ if(isset($_GET['restore'])) {
 // Handle permanent delete
 if(isset($_GET['delete'])) {
     $id = $_GET['delete'];
+
+    // Get scholar email first
+    $scholar = $pdo->prepare("SELECT email FROM scholars WHERE scholar_id = ?");
+    $scholar->execute([$id]);
+    $sch = $scholar->fetch();
+
+    if($sch) {
+        // Delete their application so they can apply again
+        $pdo->prepare("
+            DELETE FROM applications
+            WHERE scholar_id = (
+                SELECT student_id FROM students WHERE email = ?
+            )
+        ")->execute([$sch['email']]);
+    }
+
+    // Now delete from scholars
     $pdo->prepare("DELETE FROM scholars WHERE scholar_id=?")->execute([$id]);
     header("Location: archived_scholars.php?success=deleted");
     exit();

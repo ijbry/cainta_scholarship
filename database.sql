@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 30, 2026 at 02:50 AM
+-- Generation Time: May 04, 2026 at 12:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,7 +48,6 @@ CREATE TABLE `applications` (
 --
 
 INSERT INTO `applications` (`application_id`, `scholar_id`, `school_year`, `semester`, `gwa`, `monthly_income`, `status`, `remarks`, `submitted_at`, `father_name`, `father_occupation`, `mother_name`, `mother_occupation`) VALUES
-(1, 1, '2025-2026', '2nd', 1.20, 15000.00, 'approved', '', '2026-04-02 05:20:15', NULL, NULL, NULL, NULL),
 (4, 2, '2026-2027', '2nd', NULL, NULL, 'approved', '', '2026-04-03 08:13:46', 'IAN VILLAR', 'DRIVER', 'IRY CALOOYONG MAANO', 'TGP'),
 (5, 3, '2025-2026', '1st', NULL, NULL, 'pending', NULL, '2026-04-26 15:27:47', 'ASDASDSA', 'ASDASDADA', 'afsfasfaAFDASDA', 'ASFAFFS');
 
@@ -91,10 +90,6 @@ CREATE TABLE `documents` (
 --
 
 INSERT INTO `documents` (`document_id`, `application_id`, `document_type`, `file_path`, `verified`, `verified_by`, `verified_at`) VALUES
-(1, 1, 'barangay', 'Brgy. San Juan', 0, NULL, NULL),
-(2, 1, 'birthdate', '2002-09-28', 0, NULL, NULL),
-(3, 1, 'grade_slip', 'grade_slip_1_1775107215.jpg', 0, NULL, NULL),
-(4, 1, 'enrollment_receipt', 'enrollment_receipt_1_1775107215.jpg', 0, NULL, NULL),
 (5, 4, 'barangay', 'Brgy. San Juan', 0, NULL, NULL),
 (6, 4, 'birthdate', '2006-09-12', 0, NULL, NULL),
 (7, 4, 'school', 'ICCT COLLEGE CAINTA', 0, NULL, NULL),
@@ -176,8 +171,7 @@ CREATE TABLE `scholars` (
 --
 
 INSERT INTO `scholars` (`scholar_id`, `first_name`, `last_name`, `middle_name`, `birthdate`, `gender`, `address`, `barangay`, `contact_no`, `email`, `school`, `course`, `year_level`, `status`, `created_at`, `is_archived`, `archived_at`, `archive_reason`) VALUES
-(1, 'John Ryan', 'Villar', '', '2006-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Andres', '09123132123', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-30 00:40:17', 0, NULL, NULL),
-(2, 'James', 'Villar', 'Brian', '2002-09-28', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Juan', '09305622222', 'villarjamesbrian1@gmail.com', 'STI COLLEGE ORTIGAS-CAINTA', 'BSIT', 1, 'active', '2026-04-30 00:40:28', 0, NULL, NULL);
+(1, 'John Ryan', 'Villar', '', '2006-09-12', 'Male', 'PELICAN ST ANAKPAWIS CAINTA RIZAL', 'Brgy. San Andres', '09123132123', 'johnryanvillar7@gmail.com', 'ICCT COLLEGE CAINTA', 'BSIT', 1, 'active', '2026-04-30 00:40:17', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -335,7 +329,7 @@ ALTER TABLE `inventory_transactions`
 -- AUTO_INCREMENT for table `scholars`
 --
 ALTER TABLE `scholars`
-  MODIFY `scholar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `scholar_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `students`
